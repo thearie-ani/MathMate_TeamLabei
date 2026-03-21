@@ -23,7 +23,8 @@ def load_vector_store():
         chunks = json.load(f)
     return index, chunks
 
-def retrieve(query, k=10):
+#k amount of chunk to query 
+def retrieve(query, k=20):
     index, chunks = load_vector_store()
 
     query_embedding = model.encode([query])
@@ -31,27 +32,26 @@ def retrieve(query, k=10):
 
     D, I = index.search(query_embedding, k)
 
-    # Find planet name in query
-    planet_filter = None
+    # Find ALL planets in query
+    planet_filter = []
     for planet in PLANETS:
         if planet in query.lower():
-            planet_filter = planet
-            break
+            planet_filter.append(planet)
 
-    print(f" Planet filter: {planet_filter}")
+    print(f"Planet filter: {planet_filter}")
 
     results = []
     for distance, i in zip(D[0], I[0]):
         chunk = chunks[i]
-
-        # Only keep chunks with small distance
-        if distance > 1.0:        # skip far chunks!
+        # Skip far chunks
+        if distance > 2.0:
             continue
-
         # Filter by planet name
         if planet_filter:
-            if planet_filter.lower() in chunk.lower():
-                results.append(chunk)
+            for planet in planet_filter:        #loop through list!
+                if planet.lower() in chunk.lower():
+                    results.append(chunk)
+                    break                       
         else:
             results.append(chunk)
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         if not question:
             continue
         if question.lower() == "exit":
-            print("Goodbye!")
+            print("Goodbye! See you next time")
             break
 
         results = retrieve(question)

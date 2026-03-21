@@ -11,7 +11,7 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def generate_answer(question, chunks):
     context = "\n".join(chunks)
-    
+    #Telling our google api its role
     prompt = f"""You are a planet expert chatbot.
 Only answer based on this context:
 {context}
