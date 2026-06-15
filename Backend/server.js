@@ -25,9 +25,7 @@ server.use(errorMiddleware);
 
 
 server.use("/api/auth", authRoutes);
-server.use("/", (req, res) => {
-    res.send({msg: "hello"})
-})
+
 
 server.listen(process.env.PORT, () => {
     console.log(`Server running on http://localhost:${process.env.PORT}`);
