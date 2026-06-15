@@ -23,7 +23,6 @@ server.use(cookieParser());
 
 server.use(errorMiddleware);
 
-
 server.use("/api/auth", authRoutes);
 
 
