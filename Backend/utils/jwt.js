@@ -9,9 +9,15 @@ const generateAccessToken = (user) => {
 };
 
 const generateRefreshToken = (user) => {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET || process.env.REFRESH_SECRET;
+
+  if (!refreshSecret) {
+    throw new Error("JWT_REFRESH_SECRET is not configured");
+  }
+
   return jwt.sign(
     { id: user._id },
-    process.env.REFRESH_SECRET,
+    refreshSecret,
     { expiresIn: "7d" }
   );
 };

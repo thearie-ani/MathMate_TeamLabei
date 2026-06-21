@@ -7,6 +7,7 @@ import {
 } from "../utils/jwt.js";
 import { sendEmail } from "../utils/email.js";
 import jwt from "jsonwebtoken";
+import registerService from "../services/register-service.js";
 
 // REGISTER
 export const register = async (req, res) => {
@@ -15,19 +16,13 @@ export const register = async (req, res) => {
   const existing = await User.findOne({ email });
   if (existing) return res.status(400).json({ message: "User already exists" });
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const result = await registerService({ name, email, password });
 
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword
-  });
+  const accessToken = generateAccessToken(result.user);
+  const refreshToken = generateRefreshToken(result.user);
 
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
-
-  user.refreshToken = refreshToken;
-  await user.save();
+  result.user.refreshToken = refreshToken;
+  await result.user.save();
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -35,7 +30,7 @@ export const register = async (req, res) => {
     sameSite: "strict"
   });
 
-  res.json({ user, accessToken });
+  res.json({ accessToken, user: result.user });
 };
 
 // LOGIN
