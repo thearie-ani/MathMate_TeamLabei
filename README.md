@@ -77,7 +77,7 @@ TELEGRAM_TOKEN=your_telegram_token_here
 Step 1 - Create vector database (run once only):
 ```bash
 python src/ingestion.py
-```
+``
 
 Step 2 - Run console chatbot: If you want to test console base
 ```bash
