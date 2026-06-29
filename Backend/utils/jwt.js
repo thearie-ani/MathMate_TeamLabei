@@ -7,3 +7,4 @@ export const generateAccessToken = (user) => {
     { expiresIn: "1d" }
   );
 };
+

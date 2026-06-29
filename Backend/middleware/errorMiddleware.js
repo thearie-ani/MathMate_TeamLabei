@@ -32,6 +32,13 @@ const errorMiddleware = (err, req, res, next) => {
             error.statusCode = 400;
         }
 
+        if (err.name = 'JsonWebTokenError'){
+            const message = "Invalid Token. Please Login again.";
+            error = new Error(message);
+
+            error.statusCode = 401;
+        }
+
         res.status(error.statusCode || 500).json({
             success: false,
             error: error.message || "Server Error",

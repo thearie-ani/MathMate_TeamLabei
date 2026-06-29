@@ -1,49 +1,74 @@
 import User from "../models/User.js";
 
-export const createUser = (data) => {
-    return User.create(data);
+export const createUser = (data) => User.create(data);
+
+export const findAllUsers = ({ filter = {}, sort = { createdAt: -1 }, skip = 0, limit = 20 } = {}) => {
+  return User.find(filter)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .lean();
 };
 
-export const findUserByEmail = (email) => {
-    return User.findOne({email});
+export const findUserById = (id) => User.findById(id);
+
+export const findUserByEmail = (email, select = "") =>
+  User.findOne({ email }).select(select);
+
+export const findUserByUsername = (username) =>
+  User.findOne({ username });
+
+export const updateUser = (id, data) =>
+  User.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
+
+
+export const countByRole = (role) =>
+  User.countDocuments({ role });
+
+export const findUserByResetToken = (token) =>
+  User.findOne({
+    passwordResetToken: token,
+    passwordResetExpires: {
+      $gt: Date.now(),
+    },
+  }).select("+passwordResetToken +passwordResetExpires");
+
+export const findActiveToday = () => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  return User.countDocuments({
+    role: "student",
+    lastSeen: { $gte: start },
+  });
 };
 
-export const findUserById = (id) => {
-    return User.findById(id);
-};
-
-export const updateUser = (id, data) => {
-    return User.findByIdAndUpdate(id, data, { new: true });
-};
-
-export const findUserByResetToken = (token) => {
-    return User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() }
-    });
-};
+export const findRecentRegistrations = (limit = 10) =>
+  User.find({ role: "student" })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
 
 export const updateProfile = (id, profileData) => {
-    const update = {};
+  const update = {};
 
-    if (profileData.name !== undefined) {
-      update["profile.name"] = profileData.name;
-    }
+  if (profileData.username !== undefined)
+    update.username = profileData.username;
 
-    if (profileData.avatar !== undefined) {
-      update["profile.avatar"] = profileData.avatar;
-    }
+  if (profileData.bio !== undefined)
+    update.bio = profileData.bio;
 
-    if (profileData.bio !== undefined) {
-      update["profile.bio"] = profileData.bio;
-    }
+  if (profileData.avatarUrl !== undefined)
+    update["avatar.url"] = profileData.avatarUrl;
 
-    return User.findByIdAndUpdate(
-      id,
-      update,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-}
+  if (profileData.avatarPublicId !== undefined)
+    update["avatar.publicId"] = profileData.avatarPublicId;
+
+  return User.findByIdAndUpdate(id, update, {
+    new: true,
+    runValidators: true,
+  });
+};
