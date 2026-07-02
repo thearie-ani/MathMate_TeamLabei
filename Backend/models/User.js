@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
 
     email: {
       type: String,
+      require: [true, "Gmail is required!"],
       unique: true,
       sparse: true,
       lowercase: true,
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       minlength: 6,
-      select: false,
+      require: [true, "Password is required"]
     },
 
     profile: {
@@ -61,15 +62,11 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    refreshToken: {
-      type: String,
-    },
 
     resetPasswordToken: String,
 
     resetPasswordExpires: Date,
 
-    verificationToken: String,
   },
   {
     timestamps: true,
