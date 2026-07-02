@@ -1,4 +1,12 @@
 import crypto from "crypto";
+import User from "../models/User.js";
+import {
+  generateAccessToken,
+  generateRefreshToken
+} from "../utils/jwt.js";
+import { sendEmail } from "../utils/email.js";
+import jwt from "jsonwebtoken";
+import registerService from "../services/register-service.js";
 
 // token
 import {generateAccessToken} from "../utils/jwt.js";
@@ -9,17 +17,13 @@ import * as userRepo from "../repository/userReposity.js";
 // secure password
 import * as passwordSecure from "../utils/password.js"
 
-// verify mail
-import * as verifyMail from "../utils/email.js";
+  const result = await registerService({ name, email, password });
 
+  const accessToken = generateAccessToken(result.user);
+  const refreshToken = generateRefreshToken(result.user);
 
-
-// REGISTER
-export const register = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-
-    const existingUser = await userRepo.findUserByEmail(email);
+  result.user.refreshToken = refreshToken;
+  await result.user.save();
 
     if (existingUser) {
       return res.status(400).json({
@@ -27,26 +31,7 @@ export const register = async (req, res) => {
       });
     }
 
-    const passwordHash = await passwordSecure.hashPassword(password);
-
-    const newUser = await userRepo.createUser({
-      username,
-      email,
-      password: passwordHash,
-      role: "student",
-      provider: "local"
-    });
-
-    res.status(201).json({
-      message: "User created successfully!",
-      user: newUser
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      error: error.message
-    });
-  }
+  res.json({ accessToken, user: result.user });
 };
 
 // LOGIN
