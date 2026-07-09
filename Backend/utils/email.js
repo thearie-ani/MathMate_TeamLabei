@@ -12,7 +12,7 @@ export const sendEmail = async ({ to, subject, html }) => {
   });
 
   const mailOptions = {
-    fromfrom: process.env.FROM,
+    from: process.env.FROM,
     to,
     subject,
     html,
@@ -35,7 +35,7 @@ export const sendPasswordResetEmail = async (email, resetToken, userName) => {
         <h2 style="color: #fff;">Password Reset Request</h2>
         <p style="color: #aaa;">Hi ${userName},</p>
         <p style="color: #aaa;">You requested to reset your password. Click the button below to continue:</p>
-        <a href="${resetUrl}" 
+        <a href="${resetURL}" 
            style="display: inline-block; background: linear-gradient(135deg, #ec4899, #a855f7); 
                   color: white; padding: 14px 28px; border-radius: 8px; 
                   text-decoration: none; font-weight: bold; margin: 20px 0;">
@@ -48,4 +48,32 @@ export const sendPasswordResetEmail = async (email, resetToken, userName) => {
     </html>
   `;
   return sendEmail({to: email, subject: 'MathMate - Reset Your Password', html});
+};
+
+
+export const sendVerificationEmail = async ( email, verificationToken, username) => {
+
+    const verificationURL =
+        `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
+    const html = `
+        <h2>Hello ${username}</h2>
+
+        <p>Thank you for registering.</p>
+
+        <p>Please verify your email by clicking below.</p>
+
+        <a href="${verificationURL}">
+            Verify Email
+        </a>
+
+        <p>This link expires in 24 hours.</p>
+    `;
+
+    return sendEmail({
+        to: email,
+        subject: "Verify your email",
+        html
+    });
+
 };

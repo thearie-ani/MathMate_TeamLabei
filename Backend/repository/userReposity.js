@@ -24,6 +24,8 @@ export const updateUser = (id, data) =>
     runValidators: true,
   });
 
+export const countUsers = (filter = {}) =>
+  User.countDocuments(filter);
 
 export const countByRole = (role) =>
   User.countDocuments({ role });

@@ -58,10 +58,6 @@ const quizSubmissionSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-    timeTaken: {
-      type: Number, // seconds
-      default: 0,
-    },
     attemptNumber: {
       type: Number,
       default: 1,

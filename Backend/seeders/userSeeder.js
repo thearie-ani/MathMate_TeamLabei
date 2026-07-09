@@ -15,6 +15,7 @@ export const seedDefaultUsers = async () => {
         password: await hashPassword("admin@01"),
         role: "admin",
         isActive: true,
+        isVerified: true,
       });
 
       console.log("Default admin created");
@@ -32,6 +33,7 @@ export const seedDefaultUsers = async () => {
         password: await hashPassword("haha11@"),
         role: "student",
         isActive: true,
+        isVerified: true,
       });
 
       console.log("Default student created");

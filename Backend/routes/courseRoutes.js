@@ -13,7 +13,7 @@ router.get("/", optionalAuth, CourseController.getAllCourses);
 router.get("/:courseId", optionalAuth, CourseController.getCourseById);
 
 // admin
-router.post("/", authenticate, authorize("admmin"), CourseController.createCourse);
+router.post("/", authenticate, authorize("admin"), CourseController.createCourse);
 router.put("/:courseId", authenticate, authorize("admin"), CourseController.updateCourse);
 router.delete("/:courseId", authenticate, authorize("admin"), CourseController.deleteCourse);
 

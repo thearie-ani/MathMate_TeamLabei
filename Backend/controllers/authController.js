@@ -6,7 +6,7 @@ import * as userRepo from "../repository/userReposity.js";
 
 import { hashPassword, comparePassword,} from "../utils/password.js";
 
-import { sendPasswordResetEmail } from "../utils/email.js";
+import { sendPasswordResetEmail, sendVerificationEmail } from "../utils/email.js";
 
 // register
 
@@ -38,19 +38,25 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       role: "student",
+      isVerified: false,
     });
 
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE || "7d" }
+    const verifyToken =
+      user.createEmailVerificationToken();
+
+    await user.save({
+        validateBeforeSave: false,
+    });
+    await sendVerificationEmail(
+      user.email,
+      verifyToken,
+      user.username
     );
 
     return res.status(201).json({
       success: true,
-      message: "Account created successfully",
+      message: "Registration successful. Please verify your email.",
       data: {
-        token,
         user: {
           id: user._id,
           name: user.username,
@@ -91,10 +97,14 @@ export const login = async (req, res) => {
       });
     }
 
-    if (!user.isActive) {
+    if (!user.isVerified) {
+
       return res.status(403).json({
-        success: false,
-        message: "Account is deactivated",
+
+          success: false,
+          message:
+              "Please verify your email before logging in.",
+
       });
     }
     //  compare passord input with database
@@ -118,6 +128,8 @@ export const login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRE || "7d" }
     );
 
+    console.log("Login success");
+    
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -165,6 +177,23 @@ export const logout = async (req, res) => {
   }
 };
 
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    res.json({
+      success: true,
+      data: {
+        user,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
 
 
 // forgot password
@@ -260,6 +289,62 @@ export const resetPassword = async (req, res) => {
       },
     });
   } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try{
+    const { token } = req.params;
+
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+    const user = await User.findOne({
+
+        emailVerificationToken: hashedToken,
+
+        emailVerificationExpires: {
+            $gt: Date.now(),
+        },
+
+    }).select("+emailVerificationToken +emailVerificationExpires");
+
+    if (!user) {
+
+        return res.status(400).json({
+
+            success: false,
+
+            message:
+                "Invalid or expired verification link",
+
+        });
+
+    }
+
+    user.isVerified = true;
+
+    user.emailVerificationToken = undefined;
+
+    user.emailVerificationExpires = undefined;
+
+    await user.save();
+
+    return res.json({
+
+        success: true,
+
+        message: "Email verified successfully",
+
+    });
+  }catch(error) {
     return res.status(500).json({
       success: false,
       message: "Server error",

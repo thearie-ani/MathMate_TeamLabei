@@ -25,20 +25,25 @@ const gradeQuiz = (quiz, answers) => {
     );
 
     const isCorrect =
-      question && question.correctOptionIndex === a.selectedOptionIndex;
+      question && question.correctIndex === a.selectedIndex;
 
     if (isCorrect) score++;
 
     return {
       questionId: a.questionId,
-      selectedOptionIndex: a.selectedOptionIndex,
+      selectedIndex: a.selectedIndex,
       isCorrect,
+      pointsEarned: isCorrect ? 1 : 0,
     };
   });
 
   const percentage = Math.round((score / quiz.questions.length) * 100);
 
-  return { score, percentage, gradedAnswers };
+  return {
+    score,
+    percentage,
+    gradedAnswers,
+  };
 };
 
 // quiz
@@ -107,7 +112,7 @@ export const getQuizById = async (req, res) => {
 
 export const createQuiz = async (req, res) => {
   try {
-    const { title, course, topic, description,timeLimit, passingScore, isPublished, questions } = req.body;
+    const { title, course, topic, description, passingScore, isPublished, questions } = req.body;
 
     if (!title || !course || !questions) {
       return res.status(400).json({
@@ -126,8 +131,10 @@ export const createQuiz = async (req, res) => {
     const quiz = await quizRepo.create({
       title,
       course,
-      topic: topic || null,
+      topic: lesson || null,
       description,
+      passingScore,
+      isPublished,
       questions,
       createdBy: req.user._id,
     });
@@ -277,15 +284,20 @@ export const submitQuiz = async (req, res) => {
 
     const { score, percentage, gradedAnswers } = gradeQuiz(quiz, answers);
 
+    const passed = percentage >= 50;
+
     const submission = await submissionRepo.create({
       quiz: quiz._id,
+      course: quiz.course, // IMPORTANT FIX
+      topic: quiz.topic || null,
       student: req.user._id,
+
       answers: gradedAnswers,
-      score,
-      totalQuestions: quiz.questions.length,
-      percentage,
-      attempts: 1,
-      lastSubmittedAt: new Date(),
+      score: percentage,
+      pointsEarned: score,
+      totalPoints: quiz.questions.length,
+      passed, // REQUIRED FIX
+      attemptNumber: 1,
     });
 
     return res.status(201).json({

@@ -44,9 +44,19 @@ const userSchema = new mongoose.Schema(
       publicId: { type: String, default: "" },
     },
 
-    isActive: {
+    isVerified: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+
+    emailVerificationToken: {
+      type: String,
+      select: false,
+    },
+
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
     },
 
     lastSeen: {
@@ -129,6 +139,20 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
+userSchema.methods.createEmailVerificationToken = function () {
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    this.emailVerificationToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+    this.emailVerificationExpires =
+        Date.now() + 24 * 60 * 60 * 1000;
+
+    return token;
+};
 
 
 userSchema.virtual("avatarUrl").get(function () {

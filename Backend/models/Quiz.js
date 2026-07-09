@@ -56,10 +56,7 @@ const quizSchema = new mongoose.Schema(
         message: 'A quiz must have at least one question',
       },
     },
-    timeLimit: {
-      type: Number, // minutes, 0 = no limit
-      default: 0,
-    },
+
     passingScore: {
       type: Number, // percentage
       default: 60,

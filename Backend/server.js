@@ -5,6 +5,7 @@ import cors from "cors";
 
 import connectDB from "./config/database.js";
 import { seedDefaultUsers } from "./seeders/userSeeder.js";
+import { seedCalculusCourse } from "./seeders/quizSeeder.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
@@ -38,8 +39,9 @@ server.use("/api/courses", courseRoutes);
 server.use("/api/users", userRoutes);
 server.use("/api/dashboard", dashboardRoutes);
 
-connectDB();
-seedDefaultUsers();
+await connectDB();
+await seedDefaultUsers();
+await seedCalculusCourse();
 
 server.listen(process.env.PORT, () => {    
     console.log(`Server running on http://localhost:${process.env.PORT}`);

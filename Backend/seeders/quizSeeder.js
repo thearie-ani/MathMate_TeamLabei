@@ -1,88 +1,145 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+import Course from "../models/Course.js";
+import Topic from "../models/Topics.js";
 import Quiz from "../models/Quiz.js";
 import User from "../models/User.js";
 
-// connect DB (only if you run standalone seed)
-export const connectDB = async () => {
-  await mongoose.connect(process.env.MONGO_URI);
-  console.log("MongoDB connected for seeding");
-};
+// import question banks
+import { functionQuestions, limitQuestions, derivativesQuestions, applicationsQuestions, integrationQuestions } from "../data/quiz.js";
 
-// helper: get admin user
+
+// =======================
+// HELPERS
+// =======================
 const getAdmin = async () => {
   return await User.findOne({ role: "admin" });
 };
 
-// ===============================
-// QUIZ DATA (SAMPLE STRUCTURE)
-// ===============================
-const quizData = {
-  title: "Calculus 1 - Full MCQ Exam (100 Questions)",
+const createQuestion = (q) => ({
+  text: q.text,
+  options: q.options,
+  correctIndex: q.correctIndex,
+  explaination: q.explaination,
+  points: q.points || 1,
+});
+
+// =======================
+// COURSE DATA
+// =======================
+const courseData = {
+  title: "Calculus 1",
   description:
-    "Comprehensive Calculus 1 quiz covering functions, limits, derivatives, integrals, and applications.",
-  course: new mongoose.Types.ObjectId(), // replace with real course id if you have
-  topic: null,
-  timeLimit: 120,
-  passingScore: 60,
-  isPublished: true,
-  questions: [],
+    "Complete Calculus 1 course covering functions, limits, derivatives, applications, and integration.",
 };
 
-// ===============================
-// YOU PASTE QUESTIONS HERE
-// ===============================
+// =======================
+// TOPIC STRUCTURE
+// =======================
+const topicsSeed = [
+  {
+    title: "Functions and Graphs",
+    order: 1,
+    questions: functionQuestions,
+  },
+  {
+    title: "Limits and Continuity",
+    order: 2,
+    questions: limitQuestions,
+  },
+  {
+    title: "Derivatives",
+    order: 3,
+    questions: derivativesQuestions,
+  },
+  {
+    title: "Applications of Derivatives",
+    order: 4,
+    questions: applicationsQuestions,
+  },
+  {
+    title: "Integration",
+    order: 5,
+    questions: integrationQuestions,
+  },
+];
 
-// Example converter function
-const createQuestion = (text, options, correctIndex, explanation, points = 1) => {
-  return {
-    text,
-    options,
-    correctIndex,
-    explaination: explanation, // ⚠️ spelling matches your schema
-    points,
-  };
-};
-
-// ===============================
-// SAMPLE (YOU WILL EXTEND TO 100)
-// ===============================
-quizData.questions.push(
-  createQuestion(
-    "A function is defined as:",
-    ["A relation", "A function", "A domain", "An intercept"],
-    1,
-    "A function assigns exactly one output for each input."
-  )
-);
-
-// ===============================
+// =======================
 // MAIN SEED FUNCTION
-// ===============================
-export const seedQuiz = async () => {
+// =======================
+export const seedCalculusCourse = async () => {
   try {
     const admin = await getAdmin();
 
     if (!admin) {
-      console.log("❌ No admin found. Create admin first.");
+      console.log("Admin not found");
       return;
     }
 
-    const existingQuiz = await Quiz.findOne({
-      title: quizData.title,
-    });
+    // =======================
+    // 1. COURSE
+    // =======================
+    let course = await Course.findOne({ title: courseData.title });
 
-    if (existingQuiz) {
-      console.log("⚠️ Quiz already exists. Skipping seed.");
-      return;
+    if (!course) {
+      course = await Course.create({
+        ...courseData,
+        createdBy: admin._id,
+      });
+
+      // console.log("Course created");
+    } else {
+      // console.log("Course already exists");
     }
 
-    const quiz = await Quiz.create({
-      ...quizData,
-      createdBy: admin._id,
-    });
+    // =======================
+    // 2. TOPICS + QUIZZES
+    // =======================
+    for (const topicSeed of topicsSeed) {
+      let topic = await Topic.findOne({
+        title: topicSeed.title,
+        course: course._id,
+      });
 
-    console.log("✅ Quiz seeded successfully:", quiz.title);
+      if (!topic) {
+        topic = await Topic.create({
+          title: topicSeed.title,
+          content: `${topicSeed.title} - Calculus 1 material`,
+          course: course._id,
+          order: topicSeed.order,
+        });
+
+        // console.log(`Topic created: ${topic.title}`);
+      }
+
+      // =======================
+      // 3. QUIZ PER TOPIC
+      // =======================
+      const existingQuiz = await Quiz.findOne({
+        title: `${topicSeed.title} Quiz`,
+      });
+
+      if (!existingQuiz) {
+        await Quiz.create({
+          title: `${topicSeed.title} Quiz`,
+          description: `Quiz for ${topicSeed.title}`,
+          course: course._id,
+          topic: topic._id,
+          passingScore: 60,
+          isPublished: true,
+          createdBy: admin._id,
+          questions: topicSeed.questions.map(createQuestion),
+        });
+
+        // console.log(`Quiz created: ${topicSeed.title}`);
+      } else {
+        // console.log(`Quiz already exists: ${topicSeed.title}`);
+      }
+    }
+
+    console.log("Calculus seeding completed!");
   } catch (error) {
-    console.error("❌ Quiz Seed Error:", error.message);
+    console.error(" Seed error:", error.message);
   }
 };

@@ -1,36 +1,71 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useState } from "react";
-import api from "../api/axios.js";
+import { createContext, useContext, useState, useEffect } from "react";
+import { authApi } from "../api/authApi.js";
 
-export const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = async (email, password) => {
-    const res = await api.post("/auth/login", {
-      email,
-      password,
-    });
+  // On app load, restore user from token
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const { data } = await authApi.getMe();
+        setUser(data.data.user);
+      } catch {
+        localStorage.removeItem("token");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initAuth();
+  }, []);
 
-    setToken(res.data.accessToken);
-    setUser(res.data.user);
-  };
-
-  const register = async (data) => {
-    await api.post("/auth/register", data);
+  const login = (userData, token) => {
+    localStorage.setItem("token", token);
+    setUser(userData);
   };
 
   const logout = async () => {
-    await api.post("/auth/logout");
-    setUser(null);
-    setToken(null);
+    try {
+      await authApi.logout();
+    } catch {
+      // Still logout locally even if request fails
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   };
 
+  const updateUser = (updates) =>
+    setUser((prev) => ({ ...prev, ...updates }));
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        isStudent: user?.role === "student",
+        isAdmin: user?.role === "admin",
+        login,
+        logout,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
 };
