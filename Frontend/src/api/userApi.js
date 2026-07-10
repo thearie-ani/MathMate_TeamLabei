@@ -1,7 +1,8 @@
-import api from "./axios";
+import { delay, getStoredProfile, setStoredProfile } from "./mockApi";
 
-export const getProfile = () =>
-  api.get("/users/profile");
+export const getProfile = async () => delay({ data: getStoredProfile() });
 
-export const updateProfile = (data) =>
-  api.put("/users/profile", data);
+export const updateProfile = async (data) => {
+  const updated = setStoredProfile(data);
+  return delay({ data: updated });
+};

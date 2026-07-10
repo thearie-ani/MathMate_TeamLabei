@@ -1,7 +1,8 @@
-import api from "./axios";
+import { delay, lessons } from "./mockApi";
 
-export const getLessons = () =>
-  api.get("/lessons");
+export const getLessons = async () => delay({ data: lessons });
 
-export const getLessonById = (id) =>
-  api.get(`/lessons/${id}`);
+export const getLessonById = async (id) => {
+  const lesson = lessons.find((item) => String(item.id) === String(id)) ?? null;
+  return delay({ data: lesson });
+};
