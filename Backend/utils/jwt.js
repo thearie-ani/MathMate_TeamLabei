@@ -8,6 +8,8 @@ export const generateAccessToken = (user) => {
   );
 };
 
+<<<<<<< HEAD
+=======
 const generateRefreshToken = (user) => {
   const refreshSecret = process.env.JWT_REFRESH_SECRET || process.env.REFRESH_SECRET;
 
@@ -23,3 +25,4 @@ const generateRefreshToken = (user) => {
 };
 
 export {generateAccessToken, generateRefreshToken};
+>>>>>>> main

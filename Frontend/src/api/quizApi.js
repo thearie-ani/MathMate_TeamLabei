@@ -1,14 +1,29 @@
-import { delay, quizzes, getQuizScore } from "./mockApi";
+import api from "./axios.js";
 
-export const getQuizzes = async () => delay({ data: quizzes });
+export const quizApi = {
+  // Public
+  getAllQuizzes: (params) => api.get("/quizzes", { params }),
+  getQuizById: (id) => api.get(`/quizzes/${id}`),
 
-export const getQuizById = async (id) => {
-  const quiz = quizzes.find((item) => String(item.id) === String(id)) ?? null;
-  return delay({ data: quiz });
+  // Student
+  getQuizHistory: (params) => api.get("/quizzes/history", { params }),
+  submitQuiz: (id, answers) => api.post(`/quizzes/${id}/submit`, { answers }),
+  retakeQuiz: (id, answers) => api.post(`/quizzes/${id}/retake`, { answers }),
+  getMySubmission: (id) => api.get(`/quizzes/${id}/submissions/me`),
+
+  // Admin
+  createQuiz: (data) => api.post("/quizzes", data),
+  updateQuiz: (id, data) => api.put(`/quizzes/${id}`, data),
+  deleteQuiz: (id) => api.delete(`/quizzes/${id}`),
+  getAllSubmissionsByQuiz: (id) => api.get(`/quizzes/${id}/submissions`),
 };
+import api from "./axios";
 
-export const submitQuiz = async (id, answers) => {
-  const quiz = quizzes.find((item) => String(item.id) === String(id));
-  const score = quiz ? getQuizScore(quiz, answers) : 0;
-  return delay({ data: { score, total: quiz?.questions?.length ?? 0 } });
-};
+export const getQuizzes = () =>
+  api.get("/quizzes");
+
+export const getQuizById = (id) =>
+  api.get(`/quizzes/${id}`);
+
+export const submitQuiz = (id, answers) =>
+  api.post(`/quizzes/${id}/submit`, { answers });
