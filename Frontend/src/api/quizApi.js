@@ -17,7 +17,6 @@ export const quizApi = {
   deleteQuiz: (id) => api.delete(`/quizzes/${id}`),
   getAllSubmissionsByQuiz: (id) => api.get(`/quizzes/${id}/submissions`),
 };
-import api from "./axios";
 
 export const getQuizzes = () =>
   api.get("/quizzes");

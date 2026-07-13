@@ -17,7 +17,6 @@ export const userApi = {
   updateUser: (id, data) => api.put(`/users/${id}`, data),
   deleteUser: (id) => api.delete(`/users/${id}`),
 };
-import api from "./axios";
 
 export const getProfile = () =>
   api.get("/users/profile");
