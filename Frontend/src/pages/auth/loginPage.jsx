@@ -90,9 +90,9 @@ export default function LoginPage() {
             </p>
 
             <img
-              src="/images/robot.png"
-              alt="Robot"
-              className="mt-8 rounded-2xl bg-gray-100"
+              src="https://static.vecteezy.com/system/resources/previews/024/057/326/non_2x/human-in-spooky-ghosts-costume-flying-inside-the-old-house-or-forest-at-night-spooky-halloween-background-with-ghost-ghost-on-halloween-celebration-concept-by-ai-generated-free-photo.jpg"
+              alt="Spooky ghost flying through a haunted forest at night"
+              className="mt-8 w-full max-w-lg rounded-2xl object-cover shadow-lg"
             />
 
           </div>

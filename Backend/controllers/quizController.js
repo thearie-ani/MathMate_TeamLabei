@@ -131,7 +131,7 @@ export const createQuiz = async (req, res) => {
     const quiz = await quizRepo.create({
       title,
       course,
-      topic: lesson || null,
+      topic: topic || null,
       description,
       passingScore,
       isPublished,

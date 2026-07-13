@@ -12,7 +12,7 @@ const topicSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Topic content is required'],
     },
-    course: {
+    courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',
       required: true,
@@ -43,7 +43,7 @@ const topicSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-topicSchema.index({ course: 1, order: 1 });
+topicSchema.index({ courseId: 1, order: 1 });
 topicSchema.index({ title: 'text' });
 
 const Topic = mongoose.model('Topic', topicSchema);

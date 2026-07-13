@@ -51,29 +51,57 @@ export const sendPasswordResetEmail = async (email, resetToken, userName) => {
 };
 
 
-export const sendVerificationEmail = async ( email, verificationToken, username) => {
+export const sendVerificationEmail = async (
+  email,
+  verificationCode,
+  username
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:30px">
 
-    const verificationURL =
-        `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+      <div style="max-width:600px;margin:auto;background:white;padding:40px;border-radius:10px">
 
-    const html = `
-        <h2>Hello ${username}</h2>
+        <h2>Welcome to MathMate AI</h2>
+
+        <p>Hello <strong>${username}</strong>,</p>
 
         <p>Thank you for registering.</p>
 
-        <p>Please verify your email by clicking below.</p>
+        <p>Please use the verification code below:</p>
 
-        <a href="${verificationURL}">
-            Verify Email
-        </a>
+        <div
+          style="
+            font-size:36px;
+            font-weight:bold;
+            letter-spacing:8px;
+            text-align:center;
+            margin:30px 0;
+            color:#6d28d9;
+          "
+        >
+          ${verificationCode}
+        </div>
 
-        <p>This link expires in 24 hours.</p>
-    `;
+        <p>
+          This code expires in
+          <strong>10 minutes</strong>.
+        </p>
 
-    return sendEmail({
-        to: email,
-        subject: "Verify your email",
-        html
-    });
+        <p>
+          If you didn't create this account, you can safely ignore this email.
+        </p>
 
+      </div>
+
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: "MathMate AI - Email Verification Code",
+    html,
+  });
 };

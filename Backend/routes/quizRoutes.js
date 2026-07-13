@@ -4,14 +4,13 @@ import * as QuizController from "../controllers/quizController.js"
 
 import { authenticate } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/authorizeMiddleware.js";
-import { optionalAuth } from "../middleware/guestMiddleware.js";
 
 const router = express.Router();
 
 
 // all roles
-router.get('/', optionalAuth, QuizController.getAllQuizzes);
-router.get('/:id', optionalAuth, QuizController.getQuizById);
+router.get('/', authenticate, QuizController.getAllQuizzes);
+router.get('/:id', authenticate, QuizController.getQuizById);
 
 // admin only
 router.post('/', authenticate, authorize("admin"), QuizController.createQuiz);

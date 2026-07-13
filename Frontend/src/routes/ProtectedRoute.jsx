@@ -30,21 +30,3 @@ export const ProtectedRoute = ({ allowedRoles }) => {
 
   return <Outlet />;
 };
-
-// Redirect to dashboard if already logged in
-export const GuestRoute = () => {
-  const { isAuthenticated, user, isLoading } = useAuth();
-
-  if (isLoading) return <LoadingSpinner />;
-
-  if (isAuthenticated) {
-    return (
-      <Navigate
-        to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
-        replace
-      />
-    );
-  }
-
-  return <Outlet />;
-};

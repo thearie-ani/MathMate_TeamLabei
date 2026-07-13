@@ -8,14 +8,26 @@ const courseSchema = new mongoose.Schema(
       trim: true,
       maxlength: [100, 'Title cannot exceed 100 characters'],
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
+    content: {
+      type: String,
+      default: "",
+    },
     description: {
       type: String,
       required: [true, 'Course description is required'],
       maxlength: [1000, 'Description cannot exceed 1000 characters'],
     },
-    thumbnail: {
-      url: { type: String, default: '' },
-      publicId: { type: String, default: '' },
+     coverImageUrl: {
+      type: String,
+      default: null,
     },
     isPublished: {
       type: Boolean,

@@ -4,13 +4,12 @@ import * as CourseController from "../controllers/courseController.js";
 
 import { authenticate } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/authorizeMiddleware.js";
-import { optionalAuth } from "../middleware/guestMiddleware.js";
 
 const router = express.Router();
 
 // all role
-router.get("/", optionalAuth, CourseController.getAllCourses);
-router.get("/:courseId", optionalAuth, CourseController.getCourseById);
+router.get("/", authenticate, CourseController.getAllCourses);
+router.get("/:courseId", authenticate, CourseController.getCourseById);
 
 // admin
 router.post("/", authenticate, authorize("admin"), CourseController.createCourse);
@@ -18,8 +17,8 @@ router.put("/:courseId", authenticate, authorize("admin"), CourseController.upda
 router.delete("/:courseId", authenticate, authorize("admin"), CourseController.deleteCourse);
 
 // all
-router.get("/:courseId/topics", optionalAuth, CourseController.getTopicsByCourse);
-router.get("/topics/:topicId", optionalAuth, CourseController.getTopicById);
+router.get("/:courseId/topics", authenticate, CourseController.getTopicsByCourse);
+router.get("/topics/:topicId", authenticate, CourseController.getTopicById);
 
 // admin
 router.post("/:courseId/topics", authenticate, authorize("admin"), CourseController.createTopic);
