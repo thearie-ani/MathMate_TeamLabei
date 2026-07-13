@@ -1,0 +1,401 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sala AI Lessons</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; display: flex; height: 100vh; }
+
+    /* Sidebar */
+    #sidebar {
+      width: 280px;
+      background: #1e1e2e;
+      color: #fff;
+      overflow-y: auto;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+    #sidebar h2 { font-size: 14px; color: #888; margin-bottom: 12px; }
+    .subject-btn {
+      display: block; width: 100%; text-align: left;
+      background: #2a2a3e; color: #fff; border: none;
+      padding: 10px 12px; border-radius: 8px;
+      margin-bottom: 8px; cursor: pointer; font-size: 14px;
+    }
+    .subject-btn:hover, .subject-btn.active { background: #4f46e5; }
+    .chapter-title {
+      font-size: 12px; color: #aaa;
+      margin: 12px 0 4px; padding-left: 4px;
+    }
+    .lesson-btn {
+      display: block; width: 100%; text-align: left;
+      background: none; color: #ccc; border: none;
+      padding: 6px 12px; border-radius: 6px;
+      cursor: pointer; font-size: 13px;
+    }
+    .lesson-btn:hover { background: #2a2a3e; color: #fff; }
+    .lesson-btn.active { background: #3730a3; color: #fff; }
+
+    /* Main content */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+      background: #f9f9f9;
+    }
+    #content h1 { font-size: 24px; margin-bottom: 16px; color: #1e1e2e; }
+    #lesson-body { line-height: 1.7; color: #333; }
+    #lesson-body img { max-width: 100%; }
+    #lesson-body table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+    #lesson-body td, #lesson-body th {
+      border: 1px solid #ddd; padding: 8px 12px; text-align: left;
+    }
+    #lesson-body th { background: #f0f0f0; }
+    .placeholder {
+      color: #888; font-size: 16px;
+      margin-top: 100px; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h2>SUBJECTS</h2>
+  <div id="subject-list">Loading...</div>
+  <div id="chapter-list" style="margin-top: 16px;"></div>
+</div>
+
+<div id="content">
+  <div class="placeholder">← Select a subject to get started</div>
+</div>
+
+<script>
+  const API = ''
+  let activeLesson = null
+
+  // Load subjects on page load
+  async function loadSubjects() {
+    const res = await fetch(`${API}/api/subjects`)
+    const subjects = await res.json()
+    const container = document.getElementById('subject-list')
+    container.innerHTML = ''
+    subjects.forEach(s => {
+      const btn = document.createElement('button')
+      btn.className = 'subject-btn'
+      btn.textContent = s.name
+      btn.onclick = () => {
+        document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'))
+        btn.classList.add('active')
+        loadChapters(s.slug)
+      }
+      container.appendChild(btn)
+    })
+  }
+
+  // Load chapters for a subject
+  async function loadChapters(slug) {
+    const res = await fetch(`${API}/api/subjects/${slug}/chapters`)
+    const chapters = await res.json()
+    const container = document.getElementById('chapter-list')
+    container.innerHTML = ''
+
+    for (const ch of chapters) {
+      const title = document.createElement('div')
+      title.className = 'chapter-title'
+      title.textContent = ch.title
+      container.appendChild(title)
+      await loadLessons(ch._id, container)
+    }
+  }
+
+  // Load lessons for a chapter
+  async function loadLessons(chapterId, container) {
+    const res = await fetch(`${API}/api/chapters/${chapterId}/lessons`)
+    const lessons = await res.json()
+    lessons.forEach(l => {
+      const btn = document.createElement('button')
+      btn.className = 'lesson-btn'
+      btn.textContent = l.title
+      btn.onclick = () => {
+        document.querySelectorAll('.lesson-btn').forEach(b => b.classList.remove('active'))
+        btn.classList.add('active')
+        loadLesson(l._id)
+      }
+      container.appendChild(btn)
+    })
+  }
+
+  // Load and render a single lesson
+  async function loadLesson(id) {
+    document.getElementById('content').innerHTML = '<div class="placeholder">Loading...</div>'
+    const res = await fetch(`${API}/api/lessons/${id}`)
+    const lesson = await res.json()
+    document.getElementById('content').innerHTML = `
+      <h1>${lesson.title}</h1>
+      <div id="lesson-body">${lesson.content_html}</div>
+    `
+  }
+
+  loadSubjects()
+</script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sala AI Lessons</title>
+
+  <!-- KaTeX CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+  <!-- KaTeX JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 280px;
+      background: #1e1e2e;
+      color: #fff;
+      overflow-y: auto;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+
+    #sidebar h2 {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .subject-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #2a2a3e;
+      color: #fff;
+      border: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .subject-btn:hover,
+    .subject-btn.active {
+      background: #4f46e5;
+    }
+
+    .chapter-title {
+      font-size: 12px;
+      color: #aaa;
+      margin: 12px 0 4px;
+      padding-left: 4px;
+    }
+
+    .lesson-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      color: #ccc;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .lesson-btn:hover {
+      background: #2a2a3e;
+      color: #fff;
+    }
+
+    .lesson-btn.active {
+      background: #3730a3;
+      color: #fff;
+    }
+
+    /* Main content */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+      background: #f9f9f9;
+    }
+
+    #content h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #1e1e2e;
+    }
+
+    #lesson-body {
+      line-height: 1.7;
+      color: #333;
+    }
+
+    #lesson-body img {
+      max-width: 100%;
+    }
+
+    .placeholder {
+      color: #888;
+      font-size: 16px;
+      margin-top: 100px;
+      text-align: center;
+    }
+
+    /* Math styling */
+    .math-block {
+      background: #fff;
+      padding: 12px;
+      margin: 12px 0;
+      border-left: 4px solid #4f46e5;
+      border-radius: 6px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="sidebar">
+  <h2>SUBJECTS</h2>
+  <div id="subject-list">Loading...</div>
+  <div id="chapter-list" style="margin-top: 16px;"></div>
+</div>
+
+<div id="content">
+  <div class="placeholder">← Select a subject to get started</div>
+</div>
+
+<script>
+  const API = ''
+  
+  // =========================
+  // LOAD SUBJECTS
+  // =========================
+  async function loadSubjects() {
+    const res = await fetch(`${API}/api/subjects`)
+    const subjects = await res.json()
+
+    const container = document.getElementById('subject-list')
+    container.innerHTML = ''
+
+    subjects.forEach(s => {
+      const btn = document.createElement('button')
+      btn.className = 'subject-btn'
+      btn.textContent = s.name
+
+      btn.onclick = () => {
+        document.querySelectorAll('.subject-btn')
+          .forEach(b => b.classList.remove('active'))
+
+        btn.classList.add('active')
+        loadChapters(s.slug)
+      }
+
+      container.appendChild(btn)
+    })
+  }
+
+  // =========================
+  // LOAD CHAPTERS
+  // =========================
+  async function loadChapters(slug) {
+    const res = await fetch(`${API}/api/subjects/${slug}/chapters`)
+    const chapters = await res.json()
+
+    const container = document.getElementById('chapter-list')
+    container.innerHTML = ''
+
+    for (const ch of chapters) {
+      const title = document.createElement('div')
+      title.className = 'chapter-title'
+      title.textContent = ch.title
+      container.appendChild(title)
+
+      await loadLessons(ch._id, container)
+    }
+  }
+
+  // =========================
+  // LOAD LESSONS
+  // =========================
+  async function loadLessons(chapterId, container) {
+    const res = await fetch(`${API}/api/chapters/${chapterId}/lessons`)
+    const lessons = await res.json()
+
+    lessons.forEach(l => {
+      const btn = document.createElement('button')
+      btn.className = 'lesson-btn'
+      btn.textContent = l.title
+
+      btn.onclick = () => {
+        document.querySelectorAll('.lesson-btn')
+          .forEach(b => b.classList.remove('active'))
+
+        btn.classList.add('active')
+        loadLesson(l._id)
+      }
+
+      container.appendChild(btn)
+    })
+  }
+
+  // =========================
+  // LOAD SINGLE LESSON
+  // =========================
+  async function loadLesson(id) {
+    document.getElementById('content').innerHTML =
+      '<div class="placeholder">Loading...</div>'
+
+    const res = await fetch(`${API}/api/lessons/${id}`)
+    const lesson = await res.json()
+
+    document.getElementById('content').innerHTML = `
+      <h1>${lesson.title}</h1>
+      <div id="lesson-body">${lesson.content_html}</div>
+    `
+
+    setTimeout(() => {
+      renderMath()
+    }, 0)
+  }
+
+  // =========================
+  // KATEX RENDER FUNCTION
+  // =========================
+  function renderMath() {
+    if (!window.renderMathInElement) return
+
+    renderMathInElement(document.getElementById("lesson-body"), {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+      ]
+    })
+  }
+
+  // =========================
+  // INIT
+  // =========================
+  loadSubjects()
+</script>
+
+</body>
+</html>

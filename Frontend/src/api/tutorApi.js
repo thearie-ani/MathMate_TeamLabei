@@ -1,7 +1,13 @@
-import api from "./axios";
+import { delay, conversations, buildTutorReply } from "./mockApi";
 
-export const sendMessage = (message, conversationId) =>
-  api.post("/tutor/chat", { message, conversationId });
+export const sendMessage = async (message, conversationId) => {
+  const reply = buildTutorReply(message);
+  return delay({
+    data: {
+      conversationId: conversationId ?? "default",
+      reply,
+    },
+  });
+};
 
-export const getConversations = () =>
-  api.get("/tutor/conversations");
+export const getConversations = async () => delay({ data: conversations });
