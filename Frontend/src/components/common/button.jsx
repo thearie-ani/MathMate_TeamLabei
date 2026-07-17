@@ -45,3 +45,35 @@ export default function Button({
     </button>
   );
 }
+// Gradient button
+export const GradientBtn = ({ children, onClick, type = "button", disabled, size = "md", className = "" }) => (
+  <button
+    type={type}
+    onClick={onClick}
+    disabled={disabled}
+    className={`inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-violet-500 
+    text-white font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all
+    disabled:opacity-50 disabled:cursor-not-allowed shadow-sm
+    ${size === "sm" ? "px-3 py-1.5 text-xs" : "px-5 py-2.5 text-sm"}
+    ${className}`}
+  >
+    {disabled ? <Loader2 size={14} className="animate-spin" /> : null}
+    {children}
+  </button>
+);
+
+// Ghost button
+export const GhostBtn = ({ children, onClick, type = "button", danger, size = "md" }) => (
+  <button
+    type={type}
+    onClick={onClick}
+    className={`inline-flex items-center gap-2 font-medium rounded-xl border transition-all
+    ${danger
+      ? "border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
+      : "border-[#e8e4f8] text-gray-600 hover:bg-[#f8f7ff] hover:border-violet-200"
+    }
+    ${size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"}`}
+  >
+    {children}
+  </button>
+);

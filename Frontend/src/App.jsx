@@ -42,15 +42,22 @@ import VerifyEmailPage from "./pages/auth/verifyEmailPage.jsx";
 // import AdminUsersPage from "./pages/admin/users/UsersPage.jsx";
 // import AdminUserDetailPage from "./pages/admin/users/UserDetailPage.jsx";
 
-import AdminLayout from './components/layout/adminLayour.jsx';
-import CourseListPage from './pages/admin/coursesPage.jsx';
-import CourseFormPage from './pages/admin/CourseFormPage';
-import CoursePreviewPage from './pages/admin/coursePreviewPage.jsx';
-import TopicListPage from './pages/admin/topicsPage.jsx';
-import TopicFormPage from './pages/admin/TopicFormPage';
-import TopicPreviewPage from './pages/admin/TopicPreviewPage';
-import DashboardPage from './pages/admin/dashboardPage.jsx';
+import AdminLayout from "./components/layout/adminLayour.jsx";
+import CourseListPage from "./pages/admin/coursesPage.jsx";
+import CourseFormPage from "./pages/admin/CourseFormPage";
+import CoursePreviewPage from "./pages/admin/coursePreviewPage.jsx";
+import TopicListPage from "./pages/admin/topicsPage.jsx";
+import TopicFormPage from "./pages/admin/TopicFormPage";
+import TopicPreviewPage from "./pages/admin/TopicPreviewPage";
+import QuizzesPage from "./pages/admin/quizesPage.jsx";
+import QuizFormPage from "./pages/admin/quizFormPage.jsx";
+import QuizPreviewPage from "./pages/admin/quizPreviewPage.jsx";
+import SubmissionsPage from "./pages/admin/submissionPage.jsx";
 
+import AdminUsersPage from "./pages/admin/userPage.jsx";
+import UserDetailPage from "./pages/admin/userDetailPage.jsx";
+
+import DashboardPage from "./pages/admin/dashboardPage.jsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -129,19 +136,40 @@ export default function App() {
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
             </Route> */}
-            <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route
+              path="/admin"
+              element={<ProtectedRoute allowedRoles={["admin"]} />}
+            >
               <Route element={<AdminLayout />}>
                 <Route index element={<DashboardPage />} />
 
                 <Route path="courses" element={<CourseListPage />} />
                 <Route path="courses/new" element={<CourseFormPage />} />
                 <Route path="courses/:id/edit" element={<CourseFormPage />} />
-                <Route path="courses/:id/preview" element={<CoursePreviewPage />} />
+                <Route
+                  path="courses/:id/preview"
+                  element={<CoursePreviewPage />}
+                />
 
                 <Route path="topics" element={<TopicListPage />} />
                 <Route path="topics/new" element={<TopicFormPage />} />
                 <Route path="topics/:id/edit" element={<TopicFormPage />} />
-                <Route path="topics/:id/preview" element={<TopicPreviewPage />} />
+                <Route
+                  path="topics/:id/preview"
+                  element={<TopicPreviewPage />}
+                />
+
+                <Route path="quizzes" element={<QuizzesPage />} />
+                <Route path="quizzes/new" element={<QuizFormPage />} />
+                <Route path="quizzes/:id/edit" element={<QuizFormPage />} />
+                <Route
+                  path="quizzes/:id/preview"
+                  element={<QuizPreviewPage />}
+                />
+                <Route path="quizzes/:id/submissions" element={<SubmissionsPage />} />
+
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="users/:id" element={<UserDetailPage />} />
               </Route>
             </Route>
 

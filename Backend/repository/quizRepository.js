@@ -7,11 +7,21 @@ const findAll = async (filter = {}) => {
     query.course = filter.course;
   }
 
-  return Quiz.find(query);
+  if (filter.topic) {
+    query.topic = filter.topic;
+  }
+
+  return Quiz.find(query)
+    .populate("course", "title")
+    .populate("topic", "title")
+    .populate("createdBy", "name");
 };
 
 const findById = async (id) => {
-  return Quiz.findById(id);
+  return Quiz.findById(id)
+    .populate("course", "title")
+    .populate("topic", "title")
+    .populate("createdBy", "name");
 };
 
 const create = async (data) => {

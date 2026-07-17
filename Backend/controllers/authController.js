@@ -166,6 +166,9 @@ export const login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRE || "7d" }
     );
 
+// console.log("Generated token:", token);
+// console.log("Decoded:", jwt.decode(token));
+
     console.log("Login success");
     
     return res.status(200).json({

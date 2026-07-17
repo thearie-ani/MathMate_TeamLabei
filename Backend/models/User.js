@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
-      index: true, // ✅ keep only ONE index definition
+      index: true, // 
     },
 
     password: {
@@ -37,11 +37,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
       maxlength: 300,
-    },
-
-    avatar: {
-      url: { type: String, default: "" },
-      publicId: { type: String, default: "" },
     },
 
     isVerified: {

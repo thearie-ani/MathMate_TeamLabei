@@ -14,8 +14,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
  * page — sorting, filtering, pagination, loading skeleton, and the empty
  * state all live here exactly once.
  */
-export default function DataTable({ data, columns, isLoading, emptyMessage = 'No data found', pageSize = 10 }) {
-  const [globalFilter, setGlobalFilter] = useState('');
+export default function DataTable ({ data, columns, isLoading, emptyMessage = "No data found" }) {
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
     data: data || [],
@@ -25,22 +25,19 @@ export default function DataTable({ data, columns, isLoading, emptyMessage = 'No
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize } },
+    initialState: { pagination: { pageSize: 10 } },
   });
 
   return (
     <div>
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} className="border-b border-[#e8e4f8]">
                 {hg.headers.map((h) => (
-                  <th
-                    key={h.id}
-                    scope="col"
-                    className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3"
-                  >
+                  <th key={h.id} className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3">
                     {flexRender(h.column.columnDef.header, h.getContext())}
                   </th>
                 ))}
@@ -79,6 +76,7 @@ export default function DataTable({ data, columns, isLoading, emptyMessage = 'No
         </table>
       </div>
 
+      {/* Pagination */}
       {table.getPageCount() > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-[#e8e4f8]">
           <p className="text-xs text-gray-500">
@@ -88,7 +86,6 @@ export default function DataTable({ data, columns, isLoading, emptyMessage = 'No
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              aria-label="Previous page"
               className="w-8 h-8 rounded-lg border border-[#e8e4f8] flex items-center justify-center
               text-gray-500 hover:bg-[#f8f7ff] disabled:opacity-40 transition-colors"
             >
@@ -97,7 +94,6 @@ export default function DataTable({ data, columns, isLoading, emptyMessage = 'No
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              aria-label="Next page"
               className="w-8 h-8 rounded-lg border border-[#e8e4f8] flex items-center justify-center
               text-gray-500 hover:bg-[#f8f7ff] disabled:opacity-40 transition-colors"
             >
@@ -108,4 +104,4 @@ export default function DataTable({ data, columns, isLoading, emptyMessage = 'No
       )}
     </div>
   );
-}
+};

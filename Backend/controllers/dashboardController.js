@@ -121,8 +121,7 @@ export const getStudentDashboard = async (req, res) => {
       message: "Student dashboard loaded",
       data: {
         user: {
-          name: req.user.name,
-          grade: req.user.grade,
+          username: req.user.username,
           avatarUrl: req.user.avatarUrl,
         },
         stats: {
@@ -232,9 +231,8 @@ export const getAdminDashboard = async (req, res) => {
 
         return {
           id: user._id,
-          name: user.name,
+          username: user.username,
           email: user.email,
-          grade: user.grade,
           joinedAt: user.createdAt,
           quizzesTaken: stats.totalQuizzes,
           avgScore: Math.round(stats.avgScore),
