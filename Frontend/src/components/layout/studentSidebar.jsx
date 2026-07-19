@@ -13,25 +13,25 @@ const links=[
 
 {
 name:"Dashboard",
-path:"/student",
+path:"/",
 icon:Home
 },
 
 {
 name:"Courses",
-path:"/student/courses",
+path:"/courses",
 icon:BookOpen
 },
 
 {
 name:"Quiz",
-path:"/student/quiz",
+path:"/quiz",
 icon:ClipboardList
 },
 
 {
 name:"AI Tutor",
-path:"/student/ai-tutor",
+path:"/ai-tutor",
 icon:Brain
 }
 
