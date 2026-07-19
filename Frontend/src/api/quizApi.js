@@ -10,7 +10,7 @@ export const quizApi = {
   submitQuiz: (id, answers) => api.post(`/quizzes/${id}/submit`, { answers }),
   retakeQuiz: (id, answers) => api.post(`/quizzes/${id}/retake`, { answers }),
   getMySubmission: (id) => api.get(`/quizzes/${id}/submissions/me`),
-
+  getStudentQuizHistory: (studentId, params) => api.get(`/quizzes/history/${studentId}`, {params}),
   // Admin
   createQuiz: (data) => api.post("/quizzes", data),
   updateQuiz: (id, data) => api.put(`/quizzes/${id}`, data),

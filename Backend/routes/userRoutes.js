@@ -16,5 +16,6 @@ router.delete("/me", authenticate, userController.deleteMe);
 // ─── Admin — manage all users ────────────────────────────────
 router.get("/", authenticate, authorize("admin"), userController.getAllUsers);
 router.get("/:id", authenticate, authorize("admin"), userController.getUserById);
-
+router.put("/:id", authenticate, authorize("admin"), userController.updateUserByAdmin);
+router.delete("/:id", authenticate, authorize("admin"), userController.deleteUserByAdmin)
 export default router;

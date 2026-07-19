@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import Course from "../models/Course.js";
-import Topic from "../models/Topics.js";
+import Lesson from "../models/Lesson.js";
 import Quiz from "../models/Quiz.js";
 import User from "../models/User.js";
 
@@ -29,7 +29,8 @@ const createQuestion = (q) => ({
 // COURSE DATA
 // =======================
 const courseData = {
-  title: "Calculus 1",
+  title: "Calculus Volume 1",
+  slug: "calculus-volume-1",
   description:
     "Complete Calculus 1 course covering functions, limits, derivatives, applications, and integration.",
 };
@@ -37,7 +38,7 @@ const courseData = {
 // =======================
 // TOPIC STRUCTURE
 // =======================
-const topicsSeed = [
+const LessonsSeed = [
   {
     title: "Functions and Graphs",
     order: 1,
@@ -94,21 +95,24 @@ export const seedCalculusCourse = async () => {
     }
 
     // =======================
-    // 2. TOPICS + QUIZZES
+    // 2. Lesson + QUIZZES
     // =======================
-    for (const topicSeed of topicsSeed) {
-      let topic = await Topic.findOne({
-        title: topicSeed.title,
+    for (const lessonSeed of LessonsSeed) {
+      let lesson = await Lesson.findOne({
+        title: lessonSeed.title,
         course: course._id,
       });
 
-      if (!topic) {
-        topic = await Topic.create({
-          title: topicSeed.title,
-          content: `${topicSeed.title} - Calculus 1 material`,
-          course: course._id,
-          order: topicSeed.order,
-        });
+      if (!lesson) {
+        lesson = await Lesson.create({
+        title: lessonSeed.title,
+        slug: lessonSeed.title
+          .toLowerCase()
+          .replace(/\s+/g, "-"),
+        content: `${lessonSeed.title} - Calculus 1 material`,
+        courseId: course._id,
+        order: lessonSeed.order,
+      });
 
         // console.log(`Topic created: ${topic.title}`);
       }
@@ -117,19 +121,19 @@ export const seedCalculusCourse = async () => {
       // 3. QUIZ PER TOPIC
       // =======================
       const existingQuiz = await Quiz.findOne({
-        title: `${topicSeed.title} Quiz`,
+        title: `${lessonSeed.title} Quiz`,
       });
 
       if (!existingQuiz) {
         await Quiz.create({
-          title: `${topicSeed.title} Quiz`,
-          description: `Quiz for ${topicSeed.title}`,
-          course: course._id,
-          topic: topic._id,
+          title: `${lessonSeed.title} Quiz`,
+          description: `Quiz for ${lessonSeed.title}`,
+          courseId: course._id,
+          lessonId: lesson._id,
           passingScore: 60,
           isPublished: true,
           createdBy: admin._id,
-          questions: topicSeed.questions.map(createQuestion),
+          questions: lessonSeed.questions.map(createQuestion),
         });
 
         // console.log(`Quiz created: ${topicSeed.title}`);

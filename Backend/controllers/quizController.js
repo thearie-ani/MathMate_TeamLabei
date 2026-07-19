@@ -6,7 +6,7 @@ const sanitizeForStudent = (quiz) => ({
   _id: quiz._id,
   title: quiz.title,
   course: quiz.course,
-  topic: quiz.topic,
+  lesson: quiz.lesson,
   description: quiz.description,
   questions: quiz.questions.map((q) => ({
     _id: q._id,
@@ -112,7 +112,7 @@ export const getQuizById = async (req, res) => {
 
 export const createQuiz = async (req, res) => {
   try {
-    const { title, course, topic, description, passingScore, isPublished, questions } = req.body;
+    const { title, course, lesson, description, passingScore, isPublished, questions } = req.body;
 
     if (!title || !course || !questions) {
       return res.status(400).json({
@@ -131,7 +131,7 @@ export const createQuiz = async (req, res) => {
     const quiz = await quizRepo.create({
       title,
       course,
-      topic: topic || null,
+      lesson: lesson || null,
       description,
       passingScore,
       isPublished,
@@ -192,6 +192,49 @@ export const deleteQuiz = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Quiz deleted successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+// Add this export to quizController.js, alongside getQuizHistory.
+// It's the same pagination/repo logic as the self-service version —
+// the only difference is the target id comes from req.params instead
+// of req.user._id, and it's gated to admin via the route middleware.
+
+export const getQuizHistoryForStudent = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [submissions, total] = await Promise.all([
+      submissionRepo.findByStudentId(studentId, { skip, limit: limitNum }),
+      submissionRepo.countByStudentId(studentId),
+    ]);
+
+    const totalPages = Math.ceil(total / limitNum);
+
+    return res.status(200).json({
+      success: true,
+      message: "Quiz history retrieved",
+      data: { submissions },
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1,
+      },
     });
   } catch (err) {
     return res.status(500).json({
@@ -288,8 +331,8 @@ export const submitQuiz = async (req, res) => {
 
     const submission = await submissionRepo.create({
       quiz: quiz._id,
-      course: quiz.course, // IMPORTANT FIX
-      topic: quiz.topic || null,
+      course: quiz.course, 
+      lesson: quiz.lesson || null,
       student: req.user._id,
 
       answers: gradedAnswers,

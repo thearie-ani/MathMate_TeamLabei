@@ -17,6 +17,8 @@ router.post('/', authenticate, authorize("admin"), QuizController.createQuiz);
 router.put('/:id', authenticate, authorize("admin"), QuizController.updateQuiz);
 router.delete('/:id', authenticate, authorize("admin"), QuizController.deleteQuiz);
 router.get('/:id/submissions', authenticate, authorize("admin"), QuizController.getAllSubmissionByQuiz);
+router.get('/history/:studentId', authenticate, authorize("admin"), QuizController.getQuizHistoryForStudent);
+router.get('/history', authenticate, authorize("admin"), QuizController.getQuizHistory);
 
 // student only
 router.post('/:id/submit', authenticate, authorize("student"),  QuizController.submitQuiz);

@@ -36,9 +36,9 @@ const quizSubmissionSchema = new mongoose.Schema(
       ref: 'Course',
       required: true,
     },
-    topic: {
+    lesson: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Topic',
+      ref: 'Lesson',
       default: null,
     },
     answers: [answerSchema],

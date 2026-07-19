@@ -45,10 +45,10 @@ export default function SubmissionsPage () {
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-100 to-violet-100
           border border-[#e8e4f8] flex items-center justify-center text-xs font-bold text-violet-600">
-            {row.original.student?.name?.[0] || "?"}
+            {row.original.student?.username?.[0] || "?"}
           </div>
           <div>
-            <p className="font-medium text-[#1a1535] text-sm">{row.original.student?.name}</p>
+            <p className="font-medium text-[#1a1535] text-sm">{row.original.student?.username}</p>
             <p className="text-xs text-gray-400">{row.original.student?.email}</p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function SubmissionsPage () {
         <StatCard
           label="Pass Rate"
           value={submissions?.length
-            ? `${Math.round(submissions.filter(s => s.percentage >= (quiz?.passingScore || 60)).length / submissions.length * 100)}%`
+            ? `${Math.round(submissions.filter(s => s.score >= (quiz?.passingScore || 60)).length / submissions.length * 100)}%`
             : "—"
           }
           icon={TrendingUp}

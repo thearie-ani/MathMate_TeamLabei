@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, FileText, ClipboardList, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, ClipboardList, Users, LogOut, SaveIcon } from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/admin/courses', label: 'Courses', icon: BookOpen },
-  { to: '/admin/topics', label: 'Topics', icon: FileText },
   { to: '/admin/quizzes', label: 'Quizzes', icon: ClipboardList },
   { to: '/admin/users', label: 'Users', icon: Users },
+  { to: '/admin/import', label: 'Import', icon: SaveIcon },
+
 ];
 
 export default function Sidebar({ onLogout }) {

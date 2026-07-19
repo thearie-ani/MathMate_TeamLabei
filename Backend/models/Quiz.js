@@ -39,14 +39,14 @@ const quizSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    course: {
+    courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',
       required: true,
     },
-    topic: {
+    lessonId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Topic',
+      ref: 'Lesson',
       default: null,
     },
     questions: {

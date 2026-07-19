@@ -1,17 +1,24 @@
 import * as courseRepo from "../repository/courseRepositoty.js";
-import * as topicRepo from "../repository/topicRepository.js";
+import * as lessonRepo from "../repository/lessonRepository.js";
 import * as enrollmentRepo from "../repository/progressRepository.js";
-import Course from "../models/Course.js";
-import Topic from "../models/Topics.js";
+
+const generateSlug = (title) =>
+  title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
 
 // courses
 
 export const getAllCourses = async (req, res) => {
   try {
-    const role = req.user?.role || "guest";
+    const role = req.user?.role;
 
-    const filter = {};
-    if (role !== "admin") filter.isPublished = true;
+const filter =
+  role === "admin"
+    ? {}
+    : { status: "published" };
 
     const courses = await courseRepo.findAll(filter);
 
@@ -40,9 +47,41 @@ export const getCourseById = async (req, res) => {
       });
     }
 
-    // Guests and students can only see published courses
     const role = req.user?.role || "guest";
-    if (role !== "admin" && !course.isPublished) {
+    if (role !== "admin" && course.status !== "published") {
+      return res.status(403).json({
+        success: false,
+        message: "This course is not available yet",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Course retrieved",
+      data: { course },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+export const getCourseBySlug = async (req, res) => {
+  try {
+    const course = await courseRepo.findBySlug(req.params.slug);
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    const role = req.user?.role || "guest";
+    if (role !== "admin" && course.status !== "published") {
       return res.status(403).json({
         success: false,
         message: "This course is not available yet",
@@ -65,7 +104,7 @@ export const getCourseById = async (req, res) => {
 
 export const createCourse = async (req, res) => {
   try {
-    const { title, description, isPublished } = req.body;
+    const { title, description, thumbnail, sourceUrl, status } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({
@@ -74,10 +113,23 @@ export const createCourse = async (req, res) => {
       });
     }
 
+    const slug = req.body.slug ? generateSlug(req.body.slug) : generateSlug(title);
+
+    const existing = await courseRepo.findBySlug(slug);
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: `A course with slug "${slug}" already exists`,
+      });
+    }
+
     const course = await courseRepo.create({
       title,
+      slug,
       description,
-      isPublished: isPublished,
+      thumbnail,
+      sourceUrl,
+      status: status || "draft",
       createdBy: req.user._id,
     });
 
@@ -87,6 +139,8 @@ export const createCourse = async (req, res) => {
       data: { course },
     });
   } catch (error) {
+    console.error("CREATE COURSE ERROR:", error);
+
     return res.status(500).json({
       success: false,
       message: "Server error",
@@ -97,7 +151,28 @@ export const createCourse = async (req, res) => {
 
 export const updateCourse = async (req, res) => {
   try {
-    const course = await courseRepo.updateById(req.params.courseId, req.body);
+    const { title, description, thumbnail, sourceUrl, status, slug } = req.body;
+
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (thumbnail !== undefined) updates.thumbnail = thumbnail;
+    if (sourceUrl !== undefined) updates.sourceUrl = sourceUrl;
+    if (status !== undefined) updates.status = status;
+
+    if (slug || title) {
+      const newSlug = generateSlug(slug || title);
+      const existing = await courseRepo.findBySlug(newSlug);
+      if (existing && existing._id.toString() !== req.params.courseId) {
+        return res.status(409).json({
+          success: false,
+          message: `A course with slug "${newSlug}" already exists`,
+        });
+      }
+      updates.slug = newSlug;
+    }
+
+    const course = await courseRepo.updateById(req.params.courseId, updates);
 
     if (!course) {
       return res.status(404).json({
@@ -122,7 +197,7 @@ export const updateCourse = async (req, res) => {
 
 export const deleteCourse = async (req, res) => {
   try {
-    const course = await courseRepo.deleteById(req.params.courseId);
+    const course = await courseRepo.findById(req.params.courseId);
 
     if (!course) {
       return res.status(404).json({
@@ -130,6 +205,12 @@ export const deleteCourse = async (req, res) => {
         message: "Course not found",
       });
     }
+
+    // cascade delete dependent data before removing the course
+    await lessonRepo.deleteByCourse(req.params.courseId);
+    await enrollmentRepo.deleteByCourse(req.params.courseId);
+    await enrollmentRepo.deleteProgressByCourse(req.params.courseId);
+    await courseRepo.deleteById(req.params.courseId);
 
     return res.status(200).json({
       success: true,
@@ -144,9 +225,9 @@ export const deleteCourse = async (req, res) => {
   }
 };
 
-// topics
+// lessons
 
-export const getTopicsByCourse = async (req, res) => {
+export const getLessonsByCourse = async (req, res) => {
   try {
     const course = await courseRepo.findById(req.params.courseId);
     if (!course) {
@@ -156,12 +237,20 @@ export const getTopicsByCourse = async (req, res) => {
       });
     }
 
-    const topics = await topicRepo.findByCourse(req.params.courseId);
+    const role = req.user?.role;
+
+    const filter =
+      role === "admin"
+        ? {}
+        : { status: "published" };
+        
+
+    const lessons = await lessonRepo.findByCourse(req.params.courseId, filter);
 
     return res.status(200).json({
       success: true,
-      message: "Topics retrieved",
-      data: { topics },
+      message: "Lessons retrieved",
+      data: { lessons },
     });
   } catch (error) {
     return res.status(500).json({
@@ -172,21 +261,29 @@ export const getTopicsByCourse = async (req, res) => {
   }
 };
 
-export const getTopicById = async (req, res) => {
+export const getLessonById = async (req, res) => {
   try {
-    const topic = await topicRepo.findById(req.params.topicId);
+    const lesson = await lessonRepo.findById(req.params.lessonId);
 
-    if (!topic) {
+    if (!lesson) {
       return res.status(404).json({
         success: false,
-        message: "Topic not found",
+        message: "Lesson not found",
+      });
+    }
+
+    const role = req.user?.role || "guest";
+    if (role !== "admin" && lesson.status !== "published") {
+      return res.status(403).json({
+        success: false,
+        message: "This lesson is not available yet",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Topic retrieved",
-      data: { topic },
+      message: "Lesson retrieved",
+      data: { lesson },
     });
   } catch (error) {
     return res.status(500).json({
@@ -197,9 +294,9 @@ export const getTopicById = async (req, res) => {
   }
 };
 
-export const createTopic = async (req, res) => {
+export const createLesson = async (req, res) => {
   try {
-    const { title, content, order, estimatedMinutes } = req.body;
+    const { title, content, chapter, order, status, sourceUrl } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({
@@ -216,23 +313,36 @@ export const createTopic = async (req, res) => {
       });
     }
 
-    const topic = await topicRepo.create({
+    const slug = req.body.slug ? generateSlug(req.body.slug) : generateSlug(title);
+
+    const existing = await lessonRepo.findBySlug(req.params.courseId, slug);
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: `A lesson with slug "${slug}" already exists in this course`,
+      });
+    }
+
+    const lesson = await lessonRepo.create({
       title,
-      content,
+      slug,
+      courseId: req.params.courseId,
+      chapter: chapter ?? 0,
       order: order ?? 0,
-      estimatedMinutes,
-      course: req.params.courseId,
+      content,
+      status: status || "draft",
+      sourceUrl: sourceUrl || "",
     });
 
-    // Keep course topicCount in sync
+    // keep course topicCount in sync
     await courseRepo.updateById(req.params.courseId, {
       $inc: { topicCount: 1 },
     });
 
     return res.status(201).json({
       success: true,
-      message: "Topic created successfully",
-      data: { topic },
+      message: "Lesson created successfully",
+      data: { lesson },
     });
   } catch (error) {
     return res.status(500).json({
@@ -243,21 +353,51 @@ export const createTopic = async (req, res) => {
   }
 };
 
-export const updateTopic = async (req, res) => {
+export const updateLesson = async (req, res) => {
   try {
-    const topic = await topicRepo.updateById(req.params.topicId, req.body);
+    const { title, slug, chapter, order, content, status, sourceUrl } = req.body;
 
-    if (!topic) {
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (chapter !== undefined) updates.chapter = chapter;
+    if (order !== undefined) updates.order = order;
+    if (content !== undefined) updates.content = content;
+    if (status !== undefined) updates.status = status;
+    if (sourceUrl !== undefined) updates.sourceUrl = sourceUrl;
+
+    if (slug || title) {
+      const existingLesson = await lessonRepo.findById(req.params.lessonId);
+      if (!existingLesson) {
+        return res.status(404).json({
+          success: false,
+          message: "Lesson not found",
+        });
+      }
+
+      const newSlug = generateSlug(slug || title);
+      const duplicate = await lessonRepo.findBySlug(existingLesson.courseId, newSlug);
+      if (duplicate && duplicate._id.toString() !== req.params.lessonId) {
+        return res.status(409).json({
+          success: false,
+          message: `A lesson with slug "${newSlug}" already exists in this course`,
+        });
+      }
+      updates.slug = newSlug;
+    }
+
+    const lesson = await lessonRepo.updateById(req.params.lessonId, updates);
+
+    if (!lesson) {
       return res.status(404).json({
         success: false,
-        message: "Topic not found",
+        message: "Lesson not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Topic updated",
-      data: { topic },
+      message: "Lesson updated",
+      data: { lesson },
     });
   } catch (error) {
     return res.status(500).json({
@@ -268,25 +408,25 @@ export const updateTopic = async (req, res) => {
   }
 };
 
-export const deleteTopic = async (req, res) => {
+export const deleteLesson = async (req, res) => {
   try {
-    const topic = await topicRepo.deleteById(req.params.topicId);
+    const lesson = await lessonRepo.deleteById(req.params.lessonId);
 
-    if (!topic) {
+    if (!lesson) {
       return res.status(404).json({
         success: false,
-        message: "Topic not found",
+        message: "Lesson not found",
       });
     }
 
-    // Keep course topicCount in sync
-    await courseRepo.updateById(topic.course.toString(), {
+    // keep course topicCount in sync
+    await courseRepo.updateById(lesson.courseId.toString(), {
       $inc: { topicCount: -1 },
     });
 
     return res.status(200).json({
       success: true,
-      message: "Topic deleted successfully",
+      message: "Lesson deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({
@@ -310,14 +450,13 @@ export const enrollCourse = async (req, res) => {
       });
     }
 
-    if (!course.isPublished) {
+    if (course.status !== "published") {
       return res.status(403).json({
         success: false,
         message: "This course is not available for enrollment",
       });
     }
 
-    // check already enrolled
     const existing = await enrollmentRepo.findByStudentAndCourse(
       req.user._id,
       req.params.courseId
@@ -330,7 +469,7 @@ export const enrollCourse = async (req, res) => {
       });
     }
 
-    const enrollment = await enrollmentRepo.create({
+    const enrollment = await enrollmentRepo.createEnrollment({
       student: req.user._id,
       course: req.params.courseId,
     });
@@ -339,7 +478,7 @@ export const enrollCourse = async (req, res) => {
     await enrollmentRepo.createProgress({
       student: req.user._id,
       course: req.params.courseId,
-      completedTopics: [],
+      completedLessons: [],
       progressPercentage: 0,
     });
 
@@ -382,22 +521,22 @@ export const getMyCourses = async (req, res) => {
 
 // progresses
 
-export const completeTopic = async (req, res) => {
+export const completeLesson = async (req, res) => {
   try {
-    const { topicId } = req.params;
+    const { lessonId } = req.params;
 
-    const topic = await topicRepo.findById(topicId);
-    if (!topic) {
+    const lesson = await lessonRepo.findById(lessonId);
+    if (!lesson) {
       return res.status(404).json({
         success: false,
-        message: "Topic not found",
+        message: "Lesson not found",
       });
     }
 
     // must be enrolled
     const enrollment = await enrollmentRepo.findByStudentAndCourse(
       req.user._id,
-      topic.course.toString()
+      lesson.courseId.toString()
     );
 
     if (!enrollment) {
@@ -407,54 +546,62 @@ export const completeTopic = async (req, res) => {
       });
     }
 
-    // get current progress
     let progress = await enrollmentRepo.findProgress(
       req.user._id,
-      topic.course.toString()
+      lesson.courseId.toString()
     );
 
     if (!progress) {
       progress = await enrollmentRepo.createProgress({
         student: req.user._id,
-        course: topic.course,
-        completedTopics: [],
+        course: lesson.courseId,
+        completedLessons: [],
         progressPercentage: 0,
       });
     }
 
     // avoid duplicate completions
-    const alreadyDone = progress.completedTopics
+    const alreadyDone = progress.completedLessons
       .map((id) => id.toString())
-      .includes(topicId);
+      .includes(lessonId);
 
     if (alreadyDone) {
       return res.status(200).json({
         success: true,
-        message: "Topic already completed",
+        message: "Lesson already completed",
         data: { progress },
       });
     }
 
-    // add topic to completed list and recalculate percentage
-    const totalTopics = await topicRepo.countByCourse(topic.course.toString());
-    const newCompleted = [...progress.completedTopics, topicId];
+    // add lesson to completed list and recalculate percentage
+    const totalLessons = await lessonRepo.countPublishedByCourse(
+      lesson.courseId.toString()
+    );
+    const newCompleted = [
+    ...new Set([
+      ...progress.completedLessons.map(
+        id=>id.toString()
+      ),
+      lessonId
+    ])
+    ];
     const percentage =
-      totalTopics > 0 ? Math.round((newCompleted.length / totalTopics) * 100) : 0;
+      totalLessons > 0 ? Math.round((newCompleted.length / totalLessons) * 100) : 0;
 
     const updatedProgress = await enrollmentRepo.updateProgress(
       req.user._id,
-      topic.course.toString(),
+      lesson.courseId.toString(),
       {
-        completedTopics: newCompleted,
+        completedLessons: newCompleted,
         progressPercentage: percentage,
-        lastAccessedTopic: topicId,
+        lastAccessedLesson: lessonId,
         ...(percentage === 100 && { completedAt: new Date() }),
       }
     );
 
     return res.status(200).json({
       success: true,
-      message: "Topic marked as complete",
+      message: "Lesson marked as complete",
       data: { progress: updatedProgress },
     });
   } catch (error) {
@@ -486,14 +633,14 @@ export const getCourseProgress = async (req, res) => {
       req.params.courseId
     );
 
-    const totalTopics = await topicRepo.countByCourse(req.params.courseId);
+    const totalLessons = await lessonRepo.countPublishedByCourse(req.params.courseId);
 
     return res.status(200).json({
       success: true,
       message: "Course progress retrieved",
       data: {
-        completedTopics: progress?.completedTopics?.length || 0,
-        totalTopics,
+        completedLessons: progress?.completedLessons?.length || 0,
+        totalLessons,
         progressPercentage: progress?.progressPercentage || 0,
         completedAt: progress?.completedAt || null,
       },
@@ -524,5 +671,68 @@ export const getMyProgress = async (req, res) => {
       message: "Server error",
       error: error.message,
     });
+  }
+};
+export const getLessonStatus = async (req, res) => {
+  try {
+    const { courseId, lessonId } = req.params;
+
+
+    // Check enrollment
+    const enrollment =
+      await enrollmentRepo.findByStudentAndCourse(
+        req.user._id,
+        courseId
+      );
+
+
+    if (!enrollment) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not enrolled in this course",
+      });
+    }
+
+
+
+    const progress =
+      await enrollmentRepo.findProgress(
+        req.user._id,
+        courseId
+      );
+
+
+
+    const completed =
+      progress?.completedLessons
+        ?.map(id => id.toString())
+        .includes(lessonId)
+        || false;
+
+
+
+    return res.status(200).json({
+
+      success:true,
+
+      data:{
+        completed
+      }
+
+    });
+
+
+  } catch(error){
+
+    return res.status(500).json({
+
+      success:false,
+
+      message:"Server error",
+
+      error:error.message
+
+    });
+
   }
 };

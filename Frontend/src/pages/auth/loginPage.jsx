@@ -37,14 +37,18 @@ export default function LoginPage() {
 
       const { user, token } = data.data;
 
-      login(user, token);
 
       toast.success(`Welcome back ${user.role}!`);
+      console.log("Before login:", user);
+
+      login(user, token);
+
+      console.log("After login, navigating...");
 
       navigate(
         from ||
           (user.role === "admin"
-            ? "/admin/dashboard"
+            ? "/admin"
             : "/dashboard"),
         { replace: true }
       );

@@ -29,7 +29,7 @@ export const findByCourse = async (courseId) => {
     course: courseId,
     isActive: true,
   })
-    .populate("student", "name email")
+    .populate("student", "username email")
     .lean();
 };
 
@@ -93,8 +93,8 @@ export const findProgress = async ( studentId, courseId ) => {
     student: studentId,
     course: courseId,
   })
-    .populate("completedTopics", "title")
-    .populate("lastAccessedTopic", "title");
+    .populate("completedLessons", "title")
+    .populate("lastAccessedLesson", "title");
 };
 
 export const findAllProgressByStudent = async ( studentId) => {
@@ -102,8 +102,8 @@ export const findAllProgressByStudent = async ( studentId) => {
     student: studentId,
   })
     .populate("course", "title icon")
-    .populate("completedTopics", "title")
-    .populate("lastAccessedTopic", "title")
+    .populate("completedLessons", "title")
+    .populate("lastAccessedLesson", "title")
     .lean();
 };
 
@@ -134,10 +134,10 @@ export const markTopicCompleted = async ( studentId, courseId, topicId, progress
     },
     {
       $addToSet: {
-        completedTopics: topicId,
+        completedLessons: lessonId,
       },
       progressPercentage,
-      lastAccessedTopic: topicId,
+      lastAccessedLesson: topicId,
       ...(progressPercentage === 100 && {
         completedAt: new Date(),
       }),
@@ -156,7 +156,7 @@ export const updateLastAccessedTopic = async ( studentId, courseId, topicId ) =>
       course: courseId,
     },
     {
-      lastAccessedTopic: topicId,
+      lastAccessedLesson: topicId,
     },
     {
       new: true,
@@ -171,9 +171,9 @@ export const resetProgress = async ( studentId, courseId ) => {
       course: courseId,
     },
     {
-      completedTopics: [],
+      completedLessons: [],
       progressPercentage: 0,
-      lastAccessedTopic: null,
+      lastAccessedLesson: null,
       completedAt: null,
     },
     {
@@ -228,69 +228,3 @@ export const getStudentStats = async (studentId) => {
     }
   );
 };
-
-
-// // mock data
-// import StudentTopicProgress from "../data/progress.js";
-
-// let progresses = [...StudentTopicProgress];
-// let idCounter = progresses.length + 1;
-
-// /**
-//  * Mark a topic as completed
-//  */
-// export const markTopicCompleted = async (
-//   studentId,
-//   topicId
-// ) => {
-//   const existing = progresses.find(
-//     (p) =>
-//       p.student === studentId &&
-//       p.topic === topicId
-//   );
-
-//   if (existing) {
-//     existing.completed = true;
-//     existing.completedAt = new Date();
-
-//     return existing;
-//   }
-
-//   const newProgress = {
-//     _id: `progress${idCounter++}`,
-//     student: studentId,
-//     topic: topicId,
-//     completed: true,
-//     completedAt: new Date()
-//   };
-
-//   progresses.push(newProgress);
-
-//   return newProgress;
-// };
-
-// /**
-//  * Count completed topics
-//  */
-// export const countCompletedTopics = async (
-//   studentId,
-//   topicIds
-// ) => {
-//   return progresses.filter(
-//     (p) =>
-//       p.student === studentId &&
-//       p.completed &&
-//       topicIds.includes(p.topic)
-//   ).length;
-// };
-
-// /**
-//  * Get all progress records for a student
-//  */
-// export const findByStudent = async (
-//   studentId
-// ) => {
-//   return progresses.filter(
-//     (p) => p.student === studentId
-//   );
-// };

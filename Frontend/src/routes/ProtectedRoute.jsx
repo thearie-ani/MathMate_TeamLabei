@@ -13,6 +13,7 @@ export const ProtectedRoute = ({ allowedRoles }) => {
   const { user, isLoading, isAuthenticated } = useAuth();
   const location = useLocation();
 
+
   if (isLoading) return <LoadingSpinner />;
 
   if (!isAuthenticated) {
@@ -22,11 +23,12 @@ export const ProtectedRoute = ({ allowedRoles }) => {
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return (
       <Navigate
-        to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+        to={user.role === "admin" ? "/admin" : "/dashboard"}
         replace
       />
     );
   }
+
 
   return <Outlet />;
 };

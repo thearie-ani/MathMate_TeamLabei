@@ -43,7 +43,7 @@ export const findByQuizId = async (quizId) => {
   return Submission.find({
     quiz: quizId,
   })
-    .populate("student", "name email")
+    .populate("student", "username email")
     .sort({ score: -1 })
     .lean();
 };

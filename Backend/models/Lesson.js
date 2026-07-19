@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const topicSchema = new mongoose.Schema(
+const lessonSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -8,27 +8,39 @@ const topicSchema = new mongoose.Schema(
       trim: true,
       maxlength: [100, 'Title cannot exceed 100 characters'],
     },
-    content: {
+    slug: {
       type: String,
-      required: [true, 'Topic content is required'],
+      required: true,
+      lowercase: true,
+      trim: true,
     },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',
       required: true,
     },
+    chapter: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     order: {
       type: Number,
       required: true,
       default: 0,
     },
-    isPublic: {
-      type: Boolean,
-      default: true,
+    content: {
+      type: String,
+      required: [true, 'Topic content is required'],
     },
-    estimatedMinutes: {
-      type: Number,
-      default: 15,
+    status: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'draft',
+    },
+    sourceUrl: {
+      type: String,
+      default: '',
     },
     completionCount: {
       type: Number,
@@ -43,8 +55,8 @@ const topicSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-topicSchema.index({ courseId: 1, order: 1 });
-topicSchema.index({ title: 'text' });
+lessonSchema.index({ courseId: 1, slug: 1 }, { unique: true });
+lessonSchema.index({ courseId: 1, chapter: 1, order: 1 });
 
-const Topic = mongoose.model('Topic', topicSchema);
-export default Topic;
+const Lesson = mongoose.model('Lesson', lessonSchema);
+export default Lesson;

@@ -8,7 +8,7 @@ export const authApi = {
   getMe: () => api.get("/auth/me"),
 
   forgotPassword: (email) =>
-    api.post("/auth/forgot-password", { email }),
+    api.post("/auth/forgot-password", {email} ),
 
   resetPassword: (token, password) =>
     api.post(`/auth/reset-password/${token}`, { password }),
@@ -17,5 +17,5 @@ export const authApi = {
     api.post(`/auth/verify-email`, data),
 
   resendVerificationEmail: (email) =>
-    api.post("/auth/resend-verification", { email }),
+    api.post("/auth/resend-verification", email ),
 };

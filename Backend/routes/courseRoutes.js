@@ -7,30 +7,35 @@ import { authorize } from "../middleware/authorizeMiddleware.js";
 
 const router = express.Router();
 
-// all role
+// lesson status
+router.get("/:courseId/lessons/:lessonId/status", authenticate, authorize("student"), CourseController.getLessonStatus);
+
+// --- static/specific routes first (must come before "/:courseId") ---
+router.get("/my-courses", authenticate, authorize("student"), CourseController.getMyCourses);
+router.get("/progress/me", authenticate, authorize("student"), CourseController.getMyProgress);
+router.get("/slug/:slug", authenticate, CourseController.getCourseBySlug);
+
+// --- courses: public (filtered by guest/admin) ---
 router.get("/", authenticate, CourseController.getAllCourses);
 router.get("/:courseId", authenticate, CourseController.getCourseById);
 
-// admin
+// --- courses: admin ---
 router.post("/", authenticate, authorize("admin"), CourseController.createCourse);
 router.put("/:courseId", authenticate, authorize("admin"), CourseController.updateCourse);
 router.delete("/:courseId", authenticate, authorize("admin"), CourseController.deleteCourse);
 
-// all
-router.get("/:courseId/topics", authenticate, CourseController.getTopicsByCourse);
-router.get("/topics/:topicId", authenticate, CourseController.getTopicById);
+// --- lessons: public (filtered) ---
+router.get("/:courseId/lessons", authenticate, CourseController.getLessonsByCourse);
+router.get("/lessons/:lessonId", authenticate, CourseController.getLessonById);
 
-// admin
-router.post("/:courseId/topics", authenticate, authorize("admin"), CourseController.createTopic);
-router.put("/topics/:topicId", authenticate, authorize("admin"), CourseController.updateTopic);
-router.delete("/topics/:topicId", authenticate, authorize("admin"), CourseController.deleteTopic);
+// --- lessons: admin ---
+router.post("/:courseId/lessons", authenticate, authorize("admin"), CourseController.createLesson);
+router.put("/lessons/:lessonId", authenticate, authorize("admin"), CourseController.updateLesson);
+router.delete("/lessons/:lessonId", authenticate, authorize("admin"), CourseController.deleteLesson);
 
-// student
-
+// --- student ---
 router.post("/:courseId/enroll", authenticate, authorize("student"), CourseController.enrollCourse);
-router.get("/my-courses", authenticate, authorize("student"), CourseController.getMyCourses);
-router.post("/topics/:topicId/complete", authenticate, authorize("student"), CourseController.completeTopic);
+router.post("/lessons/:lessonId/complete", authenticate, authorize("student"), CourseController.completeLesson);
 router.get("/:courseId/progress", authenticate, authorize("student"), CourseController.getCourseProgress);
-router.get("/progress/me", authenticate, authorize("student"), CourseController.getMyProgress);
 
 export default router;

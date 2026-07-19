@@ -293,3 +293,94 @@ export const getUserById = async (req, res) => {
     });
   }
 };
+
+// ════════════════════════════════════════
+//  ADMIN — add these to userController.js
+// ════════════════════════════════════════
+
+const ADMIN_EDITABLE_FIELDS = ["role", "isActive", "username", "bio"];
+
+export const updateUserByAdmin = async (req, res) => {
+  try {
+    // An admin editing their own account through this endpoint is how
+    // people accidentally lock themselves out (demote to student, or
+    // deactivate). Force that specific edit through the normal /me routes.
+    if (req.params.id === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "Use your profile settings to update your own account",
+      });
+    }
+
+    const updates = {};
+    for (const field of ADMIN_EDITABLE_FIELDS) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+
+    if (updates.role && !["student", "admin"].includes(updates.role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Role must be 'student' or 'admin'",
+      });
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields provided to update",
+      });
+    }
+
+    const user = await userRepo.updateUser(req.params.id, updates);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: { user },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteUserByAdmin = async (req, res) => {
+  try {
+    if (req.params.id === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "Use account settings to delete your own account",
+      });
+    }
+
+    const user = await userRepo.deleteUser(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};

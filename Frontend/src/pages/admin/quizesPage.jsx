@@ -28,7 +28,6 @@ export default function QuizzesPage () {
     queryKey: ["adminQuizzes"],
     queryFn: async () => {
       const res = await quizApi.getAllQuizzes();
-      console.log("Quiz: ", res.data);
       return res.data.data.quizzes;
     },
   });
@@ -37,7 +36,7 @@ export default function QuizzesPage () {
     mutationFn: (id) => quizApi.deleteQuiz(id),
     onSuccess: () => {
       toast.success("Quiz deleted");
-      queryClient.invalidateQueries(["adminQuizzes"]);
+      queryClient.invalidateQueries({queryKey: ["adminQuizzes"]});
       setDeleteTarget(null);
     },
     onError: () => toast.error("Failed to delete quiz"),

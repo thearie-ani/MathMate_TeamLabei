@@ -25,6 +25,7 @@ export const sendEmail = async ({ to, subject, html }) => {
 
 export const sendPasswordResetEmail = async (email, resetToken, userName) => {
   const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+  console.log(resetURL);
   const html = `
     <!DOCTYPE html>
     <html>

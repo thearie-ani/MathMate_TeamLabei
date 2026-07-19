@@ -1,5 +1,7 @@
 import { Search, AlertTriangle } from 'lucide-react';
 
+
+
 export function Card({ children, className = '' }) {
   return (
     <div className={`bg-white rounded-2xl border border-[#e8e4f8] shadow-sm ${className}`}>

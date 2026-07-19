@@ -18,7 +18,7 @@ export const GuestRoute = () => {
   if (isAuthenticated) {
     return (
       <Navigate
-        to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+        to={user.role === "admin" ? "/admin" : "/dashboard"}
         replace
       />
     );

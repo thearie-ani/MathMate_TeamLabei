@@ -12,10 +12,10 @@ const courseProgressSchema = new mongoose.Schema(
       ref: 'Course',
       required: true,
     },
-    completedTopics: [
+    completedLessons: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Topic',
+        ref: 'Lesson',
       },
     ],
     progressPercentage: {
@@ -24,9 +24,9 @@ const courseProgressSchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
-    lastAccessedTopic: {
+    lastAccessedLesson: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Topic',
+      ref: 'Lesson',
       default: null,
     },
     completedAt: {

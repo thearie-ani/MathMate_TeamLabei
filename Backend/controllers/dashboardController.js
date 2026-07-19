@@ -2,7 +2,7 @@ import * as userRepo from "../repository/userReposity.js";
 import * as enrollmentRepo from "../repository/progressRepository.js";
 import * as quizRepo from "../repository/quizRepository.js";
 import * as courseRepo from "../repository/courseRepositoty.js";
-import * as topicRepo from "../repository/topicRepository.js";
+import * as lessonRepo from "../repository/lessonRepository.js";
 import * as submissionRepo from "../repository/submissionRepository.js";
 import Quiz from "../models/Quiz.js";
 import QuizSubmission from "../models/Submission.js";
@@ -58,7 +58,7 @@ const getRecentSubmissions = (studentId, limit = 10) =>
   QuizSubmission.find({ student: studentId })
     .populate("quiz", "title")
     .populate("course", "title")
-    .populate("topic", "title")
+    .populate("lesson", "title")
     .sort({ createdAt: -1 })
     .limit(limit)
     .lean();
@@ -97,22 +97,22 @@ export const getStudentDashboard = async (req, res) => {
     // Build course progress cards
     const courseProgressCards = allProgress.map((progress) => {
       const course = progress.course;
-      const totalTopics = course?.topicCount || 0;
-      const completedCount = progress.completedTopics?.length || 0;
+      const totalLessons = course?.lessonCount || 0;
+      const completedCount = progress.completedLesson?.length || 0;
       const percentage =
-        totalTopics > 0
-          ? Math.round((completedCount / totalTopics) * 100)
+        totalLesson > 0
+          ? Math.round((completedCount / totalLesson) * 100)
           : 0;
 
       return {
         courseId: course?._id,
         title: course?.title,
-        icon: course?.icon,
-        totalTopics,
-        completedTopics: progress.completedTopics || [],
+        thumbnail: course?.thumbnail,
+        totalLessons,
+        completedLesson: progress.completedLesson || [],
         completedCount,
         progressPercentage: percentage,
-        lastAccessedTopic: progress.lastAccessedTopic,
+        lastAccessedLesson: progress.lastAccessedLesson,
       };
     });
 
@@ -206,7 +206,7 @@ export const getAdminDashboard = async (req, res) => {
       activeToday,
       totalCourses,
       publishedCourses,
-      totalTopics,
+      totalLessons,
       totalQuizzes,
       totalAttempts,
       recentUsers,
@@ -215,7 +215,7 @@ export const getAdminDashboard = async (req, res) => {
       userRepo.findActiveToday(),
       courseRepo.countAll(),
       courseRepo.countPublished(),
-      topicRepo.countAll(),
+      lessonRepo.countAll(),
       quizRepo.countAll(),
       submissionRepo.countTotal(),
       userRepo.findRecentRegistrations(10),
@@ -258,7 +258,7 @@ export const getAdminDashboard = async (req, res) => {
 
           totalCourses,
           publishedCourses,
-          totalTopics,
+          totalLessons,
           totalQuizzes,
           totalQuestions,
 

@@ -51,7 +51,7 @@ export default function VerifyEmailPage() {
     try {
 
       const response =
-        await authApi.resendVerification({
+        await authApi.resendVerificationEmail({
           email,
         });
 

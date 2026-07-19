@@ -9,4 +9,12 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    port: 5173,
+    proxy: {
+      // Lets the frontend call fetch('/api/...') during dev without CORS setup
+      '/api': 'http://localhost:5000',
+      '/uploads': 'http://localhost:5000',
+    },
+  },
 })
