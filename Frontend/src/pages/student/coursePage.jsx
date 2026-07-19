@@ -252,7 +252,7 @@ export default function CoursePage() {
                   disabled={!enrolled}
 
                   onClick={()=>navigate(
-                    `/student/courses/${slug}/lessons/${lesson.slug}`
+                    `/courses/${slug}/lessons/${lesson.slug}`
                   )}
 
                   className={`
