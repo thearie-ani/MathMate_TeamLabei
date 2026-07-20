@@ -29,10 +29,7 @@ import { formatDate } from "../../utils/formatDate";
 export default function DashboardPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["adminDashboard"],
-    queryFn: async () => {
-      const response = await dashboardApi.getAdminDashboard();
-      return response.data.data;
-    },
+    queryFn: dashboardApi.getAdminDashboard,
     staleTime: 1000 * 60 * 2,
   });
 

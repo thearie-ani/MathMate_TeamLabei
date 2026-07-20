@@ -13,6 +13,12 @@ const answerSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  correctIndex: {          // NEW — without this, Mongoose strips it on save
+    type: Number,
+  },
+  explaination: {          // NEW — matches the Question schema's spelling
+    type: String,
+  },
   pointsEarned: {
     type: Number,
     default: 0,

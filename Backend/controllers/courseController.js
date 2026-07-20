@@ -571,11 +571,14 @@ export const completeLesson = async (req, res) => {
         message: "Lesson not found",
       });
     }
+    const courseId = lesson.courseId._id
+      ? lesson.courseId._id.toString()
+      : lesson.courseId.toString();
 
     // must be enrolled
     const enrollment = await enrollmentRepo.findByStudentAndCourse(
       req.user._id,
-      lesson.courseId.toString()
+      courseId
     );
 
     if (!enrollment) {
@@ -587,13 +590,13 @@ export const completeLesson = async (req, res) => {
 
     let progress = await enrollmentRepo.findProgress(
       req.user._id,
-      lesson.courseId.toString()
+      courseId
     );
 
     if (!progress) {
       progress = await enrollmentRepo.createProgress({
         student: req.user._id,
-        course: lesson.courseId,
+        course: lesson.courseId._id,
         completedLessons: [],
         progressPercentage: 0,
       });
@@ -614,7 +617,7 @@ export const completeLesson = async (req, res) => {
 
     // add lesson to completed list and recalculate percentage
     const totalLessons = await lessonRepo.countPublishedByCourse(
-      lesson.courseId.toString()
+      courseId
     );
     const newCompleted = [
     ...new Set([
@@ -629,7 +632,7 @@ export const completeLesson = async (req, res) => {
 
     const updatedProgress = await enrollmentRepo.updateProgress(
       req.user._id,
-      lesson.courseId.toString(),
+      courseId,
       {
         completedLessons: newCompleted,
         progressPercentage: percentage,
