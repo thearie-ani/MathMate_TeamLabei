@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -13,7 +13,7 @@ export default function Navbar() {
   }, []);
 
   const getAuthTarget = () => {
-    if (loading || !isAuthenticated) {
+    if (isLoading || !isAuthenticated) {
       return "/login";
     }
 
@@ -29,7 +29,7 @@ export default function Navbar() {
   };
 
   const getAuthLabel = () => {
-    if (loading) {
+    if (isLoading) {
       return "Loading...";
     }
 
@@ -41,7 +41,7 @@ export default function Navbar() {
   };
 
   const getCtaLabel = () => {
-    if (loading) {
+    if (isLoading) {
       return "Loading...";
     }
 

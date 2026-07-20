@@ -86,7 +86,7 @@ export default function App() {
 
             <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
               <Route element={<StudentLayout />}>
-                <Route index element={<StudentDashboard />} />
+                <Route path="/dashboard" element={<StudentDashboard />} />
                 <Route path="/courses" element={<CoursesPage/>} />
                 <Route path="/quizzes" element={<StudentQuizzesPage />} />
                 <Route path="/quizzes/:id" element={<QuizPage />} />

@@ -7,10 +7,10 @@ function RetrievalGraph() {
 }
 
 export default function Hero() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   const getCtaTarget = () => {
-    if (loading || !isAuthenticated) {
+    if (isLoading || !isAuthenticated) {
       return "/login";
     }
 
@@ -18,7 +18,7 @@ export default function Hero() {
   };
 
   const getCtaLabel = () => {
-    if (loading) {
+    if (isLoading) {
       return "Loading...";
     }
 

@@ -47,11 +47,11 @@ import Footer from "../../components/home/footer.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function HomePage() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   // While the token is still being verified, don't guess a destination yet
   const getCtaTarget = () => {
-    if (loading) {
+    if (isLoading) {
       return "/login";
     }
 
@@ -72,7 +72,7 @@ export default function HomePage() {
   };
 
   const getCtaLabel = () => {
-    if (loading) {
+    if (isLoading) {
       return "Loading...";
     }
 
