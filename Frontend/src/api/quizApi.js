@@ -6,14 +6,34 @@ export const quizApi = {
   getQuizById: (id) => api.get(`/quizzes/${id}`),
 
   // Student
-  getQuizHistory: (params) => api.get("/quizzes/history", { params }),
-  submitQuiz: (id, answers) => api.post(`/quizzes/${id}/submit`, { answers }),
-  retakeQuiz: (id, answers) => api.post(`/quizzes/${id}/retake`, { answers }),
-  getMySubmission: (id) => api.get(`/quizzes/${id}/submissions/me`),
-  getStudentQuizHistory: (studentId, params) => api.get(`/quizzes/history/${studentId}`, {params}),
+  getMyQuizHistory: (params) =>
+    api.get("/quizzes/history/me", { params }),
+
+  submitQuiz: (id, answers) =>
+    api.post(`/quizzes/${id}/submit`, { answers }),
+
+  retakeQuiz: (id, answers) =>
+    api.post(`/quizzes/${id}/retake`, { answers }),
+
+  getMySubmission: (id) =>
+    api.get(`/quizzes/${id}/submissions/me`),
+
   // Admin
-  createQuiz: (data) => api.post("/quizzes", data),
-  updateQuiz: (id, data) => api.put(`/quizzes/${id}`, data),
-  deleteQuiz: (id) => api.delete(`/quizzes/${id}`),
-  getAllSubmissionsByQuiz: (id) => api.get(`/quizzes/${id}/submissions`),
+  getQuizHistory: (params) =>
+    api.get("/quizzes/history", { params }),
+
+  getStudentQuizHistory: (studentId, params) =>
+    api.get(`/quizzes/history/${studentId}`, { params }),
+
+  createQuiz: (data) =>
+    api.post("/quizzes", data),
+
+  updateQuiz: (id, data) =>
+    api.put(`/quizzes/${id}`, data),
+
+  deleteQuiz: (id) =>
+    api.delete(`/quizzes/${id}`),
+
+  getAllSubmissionsByQuiz: (id) =>
+    api.get(`/quizzes/${id}/submissions`),
 };

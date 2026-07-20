@@ -38,6 +38,9 @@ import DashboardPage from "./pages/admin/dashboardPage.jsx";
 import { Home } from "lucide-react";
 import StudentLayout from "./components/layout/studenLayour.jsx";
 import CoursesPage from "./pages/student/coursesPage.jsx";
+import StudentQuizzesPage from "./pages/student/quizzesPage.jsx";
+import QuizPage from "./pages/student/quizPage.jsx";
+import QuizResultPage from "./pages/student/quizResultPage.jsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,6 +84,9 @@ export default function App() {
               <Route element={<StudentLayout />}>
                 {/* <Route index element={<StudentDashboard />} /> */}
                 <Route path="/courses" element={<CoursesPage/>} />
+                <Route path="/quizzes" element={<StudentQuizzesPage />} />
+                <Route path="/quizzes/:id" element={<QuizPage />} />
+                <Route path="/quizzes/:id/result" element={<QuizResultPage />} />
               </Route>
               <Route path="/courses/:slug" element={<CoursePage />} />
               <Route path="/courses/:slug/lessons/:lessonSlug" element={<LessonPage />} />

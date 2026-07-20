@@ -71,7 +71,7 @@ export default function QuizzesPage () {
       id: "course",
       cell: ({ row }) => (
         <span className="text-sm text-gray-500">
-          {row.original.course?.title || "—"}
+          {row.original.courseId?.title || "—"}
         </span>
       ),
     },
