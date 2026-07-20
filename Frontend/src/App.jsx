@@ -4,9 +4,9 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ProtectedRoute } from "./routes/protectedRoute.jsx";
 import { GuestRoute } from "./routes/guestRoute.jsx";
-
+import "katex/dist/katex.min.css";
 // Home
-// import HomePage from "./pages/home/HomePage.jsx";
+import HomePage from "./pages/home/HomePage.jsx";
 
 // Auth
 import LoginPage from "./pages/auth/LoginPage.jsx";
@@ -39,6 +39,10 @@ import { Home } from "lucide-react";
 import StudentLayout from "./components/layout/studenLayour.jsx";
 import CoursesPage from "./pages/student/coursesPage.jsx";
 
+//ai tutor info
+import AiTutorPage from "./pages/student/aiTutorPage.jsx";
+//student's dashbaord
+import StudentDashboard from "./pages/student/StudentDashboard.jsx";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -66,7 +70,7 @@ export default function App() {
           />
           <Routes>
             {/* ── Public — no auth needed ──────── */}
-            {/* <Route path="/" element={<HomePage />} /> */}
+            <Route path="/" element={<HomePage />} />
 
             {/* ── Guest only ───────────────────── */}
             <Route element={<GuestRoute />}>
@@ -79,11 +83,15 @@ export default function App() {
 
             <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
               <Route element={<StudentLayout />}>
-                {/* <Route index element={<StudentDashboard />} /> */}
+                <Route index element={<StudentDashboard />} />
                 <Route path="/courses" element={<CoursesPage/>} />
               </Route>
               <Route path="/courses/:slug" element={<CoursePage />} />
               <Route path="/courses/:slug/lessons/:lessonSlug" element={<LessonPage />} />
+              <Route element={<StudentLayout />}>
+                <Route path="/courses" element={<CoursesPage/>} />
+                <Route path="/ai-tutor" element={<AiTutorPage/>} />   {/* new */}
+              </Route>              
             </Route>
 
             <Route
