@@ -15,7 +15,7 @@ export const sendMessage = async (req, res) => {
     res.status(200).json(response.data);
   } catch (err) {
     console.error("FastAPI relay error:", err.message);
-    res.status(err.response?.status || 500).json({
+    return res.status(err.response?.status || 500).json({
       error: "Failed to reach AI service",
       detail: err.response?.data || err.message,
     });

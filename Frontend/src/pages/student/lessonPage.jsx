@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import katex from "katex";
 
 import { courseApi } from "../../api/courseApi";
 import LessonSidebar from "../../components/common/lessonSidebar";
-import LessonContent from "../../components/common/lessonContent";
 
 
 export default function LessonPage() {
@@ -123,6 +123,16 @@ export default function LessonPage() {
 
   }
 
+
+
+  const renderedContent = useMemo(()=>{
+
+    if(!lesson?.content)
+      return "";
+
+    return renderMathInHtml(lesson.content);
+
+  },[lesson]);
 
 
 
@@ -271,8 +281,18 @@ export default function LessonPage() {
           ">
 
 
-            <LessonContent
-              html={lesson.content}
+            <div
+
+              className="
+                prose
+                max-w-none
+                text-[#1a1535]
+              "
+
+              dangerouslySetInnerHTML={{
+                __html: renderedContent
+              }}
+
             />
 
 
@@ -360,5 +380,76 @@ export default function LessonPage() {
     </div>
 
   );
+
+}
+
+
+
+function renderMathInHtml(rawHtml){
+
+  let output = rawHtml;
+
+
+  // Block math: $$ ... $$
+  output = output.replace(
+    /\$\$([\s\S]+?)\$\$/g,
+    (match, expression) => {
+
+      try{
+
+        return katex.renderToString(
+          expression.trim(),
+          {
+            displayMode: true,
+            throwOnError: false
+          }
+        );
+
+      }catch(error){
+
+        console.error(
+          "KaTeX block render error:",
+          error
+        );
+
+        return match;
+
+      }
+
+    }
+  );
+
+
+  // Inline math: $ ... $
+  output = output.replace(
+    /\$([^\$\n]+?)\$/g,
+    (match, expression) => {
+
+      try{
+
+        return katex.renderToString(
+          expression.trim(),
+          {
+            displayMode: false,
+            throwOnError: false
+          }
+        );
+
+      }catch(error){
+
+        console.error(
+          "KaTeX inline render error:",
+          error
+        );
+
+        return match;
+
+      }
+
+    }
+  );
+
+
+  return output;
 
 }

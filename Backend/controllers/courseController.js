@@ -243,9 +243,27 @@ export const getLessonsByCourse = async (req, res) => {
       role === "admin"
         ? {}
         : { status: "published" };
-        
 
     const lessons = await lessonRepo.findByCourse(req.params.courseId, filter);
+
+    lessons.forEach((l) => {
+  const content = l.content || "";
+
+  const mathIndex =
+    content.indexOf("<math") !== -1
+      ? content.indexOf("<math")
+      : content.search(/\$|\\\(|\\\[/);
+
+  console.log(
+    `MATH SNIPPET [${l.slug}]:`,
+    JSON.stringify(
+      content.slice(
+        Math.max(mathIndex - 50, 0),
+        mathIndex + 500
+      )
+    )
+  );
+});
 
     return res.status(200).json({
       success: true,
@@ -260,7 +278,6 @@ export const getLessonsByCourse = async (req, res) => {
     });
   }
 };
-
 export const getLessonById = async (req, res) => {
   try {
     const lesson = await lessonRepo.findById(req.params.lessonId);
@@ -279,6 +296,23 @@ export const getLessonById = async (req, res) => {
         message: "This lesson is not available yet",
       });
     }
+
+    const content = lesson.content || "";
+
+    const mathIndex =
+      content.indexOf("<math") !== -1
+        ? content.indexOf("<math")
+        : content.search(/\$|\\\(|\\\[/);
+
+    console.log(
+      `MATH SNIPPET [${lesson.slug}]:`,
+      JSON.stringify(
+        content.slice(
+          Math.max(mathIndex - 50, 0),
+          mathIndex + 500
+        )
+      )
+    );
 
     return res.status(200).json({
       success: true,

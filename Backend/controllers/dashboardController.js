@@ -95,26 +95,26 @@ export const getStudentDashboard = async (req, res) => {
     const scoreChange = currentAvgScore - prevAvgScore;
 
     // Build course progress cards
-    const courseProgressCards = allProgress.map((progress) => {
-      const course = progress.course;
-      const totalLessons = course?.lessonCount || 0;
-      const completedCount = progress.completedLesson?.length || 0;
-      const percentage =
-        totalLesson > 0
-          ? Math.round((completedCount / totalLesson) * 100)
-          : 0;
+const courseProgressCards = allProgress.map((progress) => {
+  const course = progress.course;
+  const totalLessons = course?.lessonCount || 0;
+  const completedCount = progress.completedLesson?.length || 0;
+  const percentage =
+    totalLessons > 0
+      ? Math.round((completedCount / totalLessons) * 100)
+      : 0;
 
-      return {
-        courseId: course?._id,
-        title: course?.title,
-        thumbnail: course?.thumbnail,
-        totalLessons,
-        completedLesson: progress.completedLesson || [],
-        completedCount,
-        progressPercentage: percentage,
-        lastAccessedLesson: progress.lastAccessedLesson,
-      };
-    });
+  return {
+    courseId: course?._id,
+    title: course?.title,
+    thumbnail: course?.thumbnail,
+    totalLessons,
+    completedLesson: progress.completedLesson || [],
+    completedCount,
+    progressPercentage: percentage,
+    lastAccessedLesson: progress.lastAccessedLesson,
+  };
+});
 
     return res.status(200).json({
       success: true,
