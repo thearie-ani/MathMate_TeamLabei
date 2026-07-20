@@ -5,12 +5,12 @@ import * as submissionRepo from "../repository/submissionRepository.js";
 const sanitizeForStudent = (quiz) => ({
   _id: quiz._id,
   title: quiz.title,
-  course: quiz.course,
-  lesson: quiz.lesson,
+  courseId: quiz.courseId,
+  lessonId: quiz.lessonId,
   description: quiz.description,
   questions: quiz.questions.map((q) => ({
     _id: q._id,
-    questionText: q.questionText,
+    text: q.text,
     options: q.options,
   })),
 });
@@ -112,9 +112,9 @@ export const getQuizById = async (req, res) => {
 
 export const createQuiz = async (req, res) => {
   try {
-    const { title, course, lesson, description, passingScore, isPublished, questions } = req.body;
+    const { title, courseId, lessonId, description, passingScore, isPublished, questions } = req.body;
 
-    if (!title || !course || !questions) {
+    if (!title || !courseId || !questions) {
       return res.status(400).json({
         success: false,
         message: "Title, course, and questions are required",
@@ -130,8 +130,8 @@ export const createQuiz = async (req, res) => {
 
     const quiz = await quizRepo.create({
       title,
-      course,
-      lesson: lesson || null,
+      courseId,
+      lessonId: lesson || null,
       description,
       passingScore,
       isPublished,
@@ -327,12 +327,12 @@ export const submitQuiz = async (req, res) => {
 
     const { score, percentage, gradedAnswers } = gradeQuiz(quiz, answers);
 
-    const passed = percentage >= 50;
+    const passed = percentage >= quiz.passingScore;
 
     const submission = await submissionRepo.create({
       quiz: quiz._id,
-      course: quiz.course, 
-      lesson: quiz.lesson || null,
+      course: quiz.courseId, 
+      lesson: quiz.lessonId || null,
       student: req.user._id,
 
       answers: gradedAnswers,
@@ -391,13 +391,19 @@ export const retakeQuiz = async (req, res) => {
 
     const { score, percentage, gradedAnswers } = gradeQuiz(quiz, answers);
 
+    const passed = percentage >= quiz.passingScore;
+
     const updatedSubmission = await submissionRepo.retakeSubmission({
       submissionId: submission._id,
       answers: gradedAnswers,
-      score,
-      totalQuestions: quiz.questions.length,
-      percentage,
-      attempts: (submission.attempts || 1) + 1,
+      score: percentage,
+      pointsEarned: score,
+      totalPoints: quiz.questions.reduce(
+        (total, q) => total + q.points,
+        0
+      ),
+      passed,
+      attemptNumber: (submission.attemptNumber || 1) + 1,
     });
 
     return res.status(200).json({
@@ -405,6 +411,7 @@ export const retakeQuiz = async (req, res) => {
       message: "Quiz retaken successfully",
       data: { submission: updatedSubmission },
     });
+
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -413,7 +420,6 @@ export const retakeQuiz = async (req, res) => {
     });
   }
 };
-
 
 export const getMySubmission = async (req, res) => {
   try {
@@ -461,6 +467,26 @@ export const getAllSubmissionByQuiz = async (req, res) => {
       message: "Submissions retrieved",
       data: { submissions, total: submissions.length },
     });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+export const getMyQuizHistory = async (req, res) => {
+  try {
+    const submissions = await submissionRepo.findByStudentId(req.user._id);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        submissions,
+      },
+    });
+
   } catch (err) {
     return res.status(500).json({
       success: false,

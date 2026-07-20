@@ -25,7 +25,7 @@ icon:BookOpen
 
 {
 name:"Quiz",
-path:"/quiz",
+path:"/quizzes",
 icon:ClipboardList
 },
 

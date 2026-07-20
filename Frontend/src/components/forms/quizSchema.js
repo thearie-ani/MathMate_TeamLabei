@@ -3,8 +3,8 @@ import { z } from "zod";
 export const quizSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().optional(),
-  course: z.string().min(1, "Course is required"),
-  topic: z.string().optional(),
+  courseId: z.string().min(1, "Course is required"),
+  lessonId: z.string().optional(),
   passingScore: z.number().min(1).max(100),
   isPublished: z.boolean().optional(),
   questions: z

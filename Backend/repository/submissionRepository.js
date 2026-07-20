@@ -62,16 +62,24 @@ export const updateById = async (id, updateData) => {
   });
 };
 
-export const retakeSubmission = async ({ submissionId, answers, score, totalQuestions, percentage, attempts }) => {
+export const retakeSubmission = async ({
+  submissionId,
+  answers,
+  score,
+  pointsEarned,
+  totalPoints,
+  passed,
+  attemptNumber,
+}) => {
   return Submission.findByIdAndUpdate(
     submissionId,
     {
       answers,
       score,
-      totalQuestions,
-      percentage,
-      attempts,
-      lastSubmittedAt: new Date(),
+      pointsEarned,
+      totalPoints,
+      passed,
+      attemptNumber,
     },
     {
       new: true,
