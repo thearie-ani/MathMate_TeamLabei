@@ -4,6 +4,7 @@ import CourseProgress from "../models/Progress.js";
 // enrollment
 
 export const createEnrollment = async (data) => {
+  console.log("Enrollment data:", data);
   return Enrollment.create(data);
 };
 
@@ -126,7 +127,7 @@ export const updateProgress = async ( studentId, courseId, data ) => {
   );
 };
 
-export const markTopicCompleted = async ( studentId, courseId, topicId, progressPercentage ) => {
+export const markTopicCompleted = async ( studentId, courseId, lessonId, progressPercentage ) => {
   return CourseProgress.findOneAndUpdate(
     {
       student: studentId,
@@ -137,7 +138,7 @@ export const markTopicCompleted = async ( studentId, courseId, topicId, progress
         completedLessons: lessonId,
       },
       progressPercentage,
-      lastAccessedLesson: topicId,
+      lastAccessedLesson: lessonId,
       ...(progressPercentage === 100 && {
         completedAt: new Date(),
       }),

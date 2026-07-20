@@ -10,33 +10,33 @@ import ConfirmDeleteModal from "../../components/common/comfirmDeleteModal.jsx";
 import DataTable from "../../components/table/dataTable.jsx";
 
 export default function LessonsPage() {
-  const { courseId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { data: course } = useQuery({
-    queryKey: ["adminCourse", courseId],
-    queryFn: async () => (await courseApi.getCourseById(courseId)).data.data.course,
-    enabled: !!courseId,
+    queryKey: ["adminCourse", id],
+    queryFn: async () => (await courseApi.getCourseById(id)).data.data.course,
+    enabled: !!id,
   });
 
   const { data: lessons, isLoading } = useQuery({
-  queryKey: ["adminLessons", courseId],
+  queryKey: ["adminLessons", id],
   queryFn: async () => {
-    console.log("Fetching lessons for:", courseId);
-    const res = await courseApi.getLessonsByCourse(courseId);
-    console.log("API response:", res.data);
-    return res.data.data.lessons;
+    const response = await courseApi.getLessonsByCourse(id);
+    console.log(response.data);
+
+    return response.data.data.lessons;
   },
-  enabled: !!courseId,
+  enabled: !!id,
 });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => courseApi.deleteLesson(id),
     onSuccess: () => {
       toast.success("Lesson deleted");
-      queryClient.invalidateQueries({ queryKey: ["adminLessons", courseId] });
+      queryClient.invalidateQueries({ queryKey: ["adminLessons", id] });
       setDeleteTarget(null);
     },
     onError: (err) => toast.error(err.response?.data?.message || "Failed to delete lesson"),
@@ -130,7 +130,7 @@ export default function LessonsPage() {
         title={`${course?.title || "Course"} — Lessons`}
         subtitle={`${lessons?.length || 0} lessons`}
         action={
-          <Button variant="pink" onClick={() => navigate(`/admin/lessons/new?courseId=${courseId}`)}>
+          <Button variant="pink" onClick={() => navigate(`/admin/lessons/new?courseId=${id}`)}>
             <Plus size={16} /> New Lesson
           </Button>
         }

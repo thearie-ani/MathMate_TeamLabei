@@ -468,11 +468,13 @@ export const enrollCourse = async (req, res) => {
         message: "You are already enrolled in this course",
       });
     }
+console.log("req.user:", req.user);
+console.log("courseId:", req.params.courseId);
 
-    const enrollment = await enrollmentRepo.createEnrollment({
-      student: req.user._id,
-      course: req.params.courseId,
-    });
+const enrollment = await enrollmentRepo.createEnrollment({
+  student: req.user._id,
+  course: req.params.courseId,
+});
 
     // create empty progress record for this student + course
     await enrollmentRepo.createProgress({
@@ -481,6 +483,7 @@ export const enrollCourse = async (req, res) => {
       completedLessons: [],
       progressPercentage: 0,
     });
+    console.log("Progress created");
 
     // increment course enrollment count
     await courseRepo.updateById(req.params.courseId, {
@@ -493,6 +496,8 @@ export const enrollCourse = async (req, res) => {
       data: { enrollment },
     });
   } catch (error) {
+    console.error("FULL ERROR:");
+  console.error(error);
     return res.status(500).json({
       success: false,
       message: "Server error",
