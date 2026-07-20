@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, FileText, ClipboardList, Users, LogOut, SaveIcon } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -14,14 +14,12 @@ export default function Sidebar({ onLogout }) {
   return (
     <aside className="w-64 flex-shrink-0 bg-white border-r border-[#e8e4f8] flex flex-col h-screen sticky top-0">
       {/* Brand */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-[#e8e4f8]">
-        <div className="w-9 h-9 rounded-xl bg-[#ec4899] flex items-center justify-center text-white font-bold text-sm">
-          M
-        </div>
-        <span className="font-bold text-[#1a1535] text-base">
-          MathMate<span className="text-[#8b5cf6]">AI</span>
-        </span>
-      </div>
+      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-[#1a1535]">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-violet-600 text-white text-sm font-bold">
+            ∑
+          </span>
+          MathMate
+        </Link>
 
       {/* Admin identity */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e8e4f8]">

@@ -6,14 +6,14 @@ ClipboardList,
 LogOut
 } from "lucide-react";
 
-import {NavLink} from "react-router-dom";
+import {NavLink, Link} from "react-router-dom";
 
 
 const links=[
 
 {
 name:"Dashboard",
-path:"/",
+path:"/dashboard",
 icon:Home
 },
 
@@ -60,33 +60,13 @@ flex-col
 >
 
 
-<div
-className="
-mb-10
-"
->
-<h1
-className="
-text-xl
-font-bold
-text-[#1a1535]
-"
->
-LearnSpace
+    <Link to="/" className="flex items-center gap-2 text-lg font-bold text-[#1a1535]">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-violet-600 text-white text-sm font-bold">
+            ∑
+          </span>
+          MathMate
+        </Link>
 
-</h1>
-
-
-<p
-className="
-text-xs
-text-gray-400
-mt-1
-"
->
-Student Portal
-</p>
-</div>
 <nav
 className="
 space-y-2
