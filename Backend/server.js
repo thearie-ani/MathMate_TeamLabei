@@ -53,6 +53,7 @@ server.use("/api/dashboard", dashboardRoutes);
 server.use("/api/chat", chatborRoutes);
 server.use("/api/import", importRoutes);
 server.use("/api/uploads", uploadRoutes);
+server.use("/api/chat", chatborRoutes);
 
 await connectDB();
 // await seedDefaultUsers();
