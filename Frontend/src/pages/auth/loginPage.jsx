@@ -181,22 +181,6 @@ export default function LoginPage() {
 
               </div>
 
-              {/* REMEMBER */}
-
-              <div className="flex items-center justify-between">
-
-                <label className="flex items-center gap-2 text-sm text-gray-600">
-
-                  <input
-                    type="checkbox"
-                    className="accent-violet-600"
-                  />
-
-                  Remember me
-
-                </label>
-
-              </div>
 
               {/* BUTTON */}
 

@@ -44,10 +44,10 @@ const quizSchema = new mongoose.Schema(
       ref: 'Course',
       required: true,
     },
-    lessonId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Lesson',
-      default: null,
+    chapter: {
+      type: Number,
+      required: true,
+      default: 0,
     },
     questions: {
       type: [questionSchema],
@@ -82,7 +82,10 @@ const quizSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-quizSchema.index({ course: 1, topic: 1 });
+quizSchema.index({
+  courseId:1,
+  chapter:1
+});
 quizSchema.index({ isPublished: 1 });
 
 const Quiz = mongoose.model('Quiz', quizSchema);

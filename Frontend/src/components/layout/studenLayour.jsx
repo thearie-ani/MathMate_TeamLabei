@@ -1,60 +1,10 @@
-// import { Outlet, useNavigate } from "react-router-dom";
-// import StudentSidebar from "./studentSidebar.jsx";
-// import StudentNavbar from "./studentNavbar.jsx";
-// import { useAuth } from "../../context/AuthContext.jsx";
-
-// export default function StudentLayout(){
-
-//   const navigate = useNavigate();
-//   const { logout } = useAuth();
-
-//   const handleLogout = async () => {
-//     await logout();
-
-//     navigate("/login", {
-//       replace: true
-//     });
-//   };
-
-//   return (
-
-//     <div className="
-//       flex
-//       min-h-screen
-//       bg-[#faf9ff]
-//     ">
-
-//       <StudentSidebar
-//         onLogout={handleLogout}
-//       />
-
-//       <div className="
-//         flex-1
-//         min-w-0
-//       ">
-//         <StudentNavbar/>
-
-//         <main
-//           className="
-//             min-h-[calc(100vh-64px)]
-//           "
-//         >
-//           <Outlet/>
-//         </main>
-//       </div>
-
-//     </div>
-//   );
-// }
 
 import { Outlet, useNavigate } from "react-router-dom";
-import StudentSidebar from "./studentSidebar.jsx";
-import StudentNavbar from "./studentNavbar.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
+import StudentSidebar from "./StudentSidebar";
 import ChatWidget from "../chat/ChatWidget.jsx";
 
-export default function StudentLayout(){
-
+export default function StudentLayout() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -65,37 +15,24 @@ export default function StudentLayout(){
       replace: true
     });
   };
-
   return (
+    <div className="flex h-screen overflow-hidden bg-[#faf9ff]">
 
-    <div className="
-      flex
-      min-h-screen
-      bg-[#faf9ff]
-    ">
+      {/* Sidebar stays fixed */}
+      <StudentSidebar onLogout={handleLogout} />
 
-      <StudentSidebar
-        onLogout={handleLogout}
-      />
-
-      <div className="
-        flex-1
-        min-w-0
-      ">
-        <StudentNavbar/>
-
-        <main
-          className="
-            min-h-[calc(100vh-64px)]
-          "
-        >
-          <Outlet/>
-        </main>
-
-      </div>
-
+      {/* Content scrolls */}
+      <main
+        className="
+          flex-1
+          overflow-y-auto
+          h-screen
+          p-6
+        "
+      >
+        <Outlet />
+      </main>
       <ChatWidget/>
-
     </div>
   );
 }

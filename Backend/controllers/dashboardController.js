@@ -95,26 +95,42 @@ export const getStudentDashboard = async (req, res) => {
     const scoreChange = currentAvgScore - prevAvgScore;
 
     // Build course progress cards
-const courseProgressCards = allProgress.map((progress) => {
-  const course = progress.course;
-  const totalLessons = course?.lessonCount || 0;
-  const completedCount = progress.completedLesson?.length || 0;
-  const percentage =
-    totalLessons > 0
-      ? Math.round((completedCount / totalLessons) * 100)
-      : 0;
+const courseProgressCards = await Promise.all(
+  allProgress.map(async (progress) => {
 
-  return {
-    courseId: course?._id,
-    title: course?.title,
-    thumbnail: course?.thumbnail,
-    totalLessons,
-    completedLesson: progress.completedLesson || [],
-    completedCount,
-    progressPercentage: percentage,
-    lastAccessedLesson: progress.lastAccessedLesson,
-  };
-});
+    const course = progress.course;
+
+    const totalLessons = await Lesson.countDocuments({
+      course: course._id
+    });
+
+    const completedCount =
+      progress.completedLessons?.length || 0;
+
+
+    const percentage =
+      totalLessons > 0
+        ? Math.round(
+            (completedCount / totalLessons) * 100
+          )
+        : 0;
+
+
+    return {
+      courseId: course._id,
+      slug: course.slug,
+      title: course.title,
+      thumbnail: course.thumbnail,
+      lessonCount: totalLessons,
+      completedLessons:
+        progress.completedLessons || [],
+      completedCount,
+      progressPercentage: percentage,
+      lastAccessedLesson:
+        progress.lastAccessedLesson,
+    };
+  })
+);
 
     return res.status(200).json({
       success: true,
@@ -150,58 +166,15 @@ const courseProgressCards = allProgress.map((progress) => {
 //  GET /api/dashboard/admin
 //  Protected — admin only
 // ════════════════════════════════════════════════════════════
-export const getAdminDashboard = async (req, res) => {
+export const getAdminDashboard = async (req,res)=>{
   try {
-    /* ===========================
-       DATE CALCULATIONS
-    =========================== */
-
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-
-    /* ===========================
-       HEAVY AGGREGATIONS (PARALLEL)
-    =========================== */
 
     const [
       totalQuestionsAgg,
       platformAvgScoreAgg,
       weeklyAttempts,
       topPerformingTopics,
-    ] = await Promise.all([
-      // total questions in all quizzes
-      Quiz.aggregate([
-        {
-          $project: {
-            questionCount: { $size: "$questions" },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$questionCount" },
-          },
-        },
-      ]),
 
-      // platform average score
-      submissionRepo.getPlatformAverageScore(),
-
-      // weekly attempts
-      submissionRepo.getWeeklySubmissionCount(),
-
-      // top topics by performance
-      submissionRepo.getTopQuizzes(5),
-    ]);
-
-    const totalQuestions = totalQuestionsAgg[0]?.total || 0;
-    const platformAvgScore = Math.round(platformAvgScoreAgg || 0);
-
-    /* ===========================
-       SIMPLE COUNTS (PARALLEL)
-    =========================== */
-
-    const [
       totalUsers,
       activeToday,
       totalCourses,
@@ -209,8 +182,31 @@ export const getAdminDashboard = async (req, res) => {
       totalLessons,
       totalQuizzes,
       totalAttempts,
-      recentUsers,
+      recentUsers
+
     ] = await Promise.all([
+
+      Quiz.aggregate([
+        {
+          $project:{
+            questionCount:{
+              $size:"$questions"
+            }
+          }
+        },
+        {
+          $group:{
+            _id:null,
+            total:{
+              $sum:"$questionCount"
+            }
+          }
+        }
+      ]),
+
+      submissionRepo.getPlatformAverageScore(),
+      submissionRepo.getWeeklyAttemptCount(),
+      submissionRepo.getTopQuizzes(5),
       userRepo.countByRole("student"),
       userRepo.findActiveToday(),
       courseRepo.countAll(),
@@ -218,70 +214,66 @@ export const getAdminDashboard = async (req, res) => {
       lessonRepo.countAll(),
       quizRepo.countAll(),
       submissionRepo.countTotal(),
-      userRepo.findRecentRegistrations(10),
+      userRepo.findRecentRegistrations(10)
+
     ]);
 
-    /* ===========================
-       ENRICH RECENT USERS
-    =========================== */
+    const totalQuestions =  totalQuestionsAgg[0]?.total || 0;
 
-    const enrichedUsers = await Promise.all(
-      recentUsers.map(async (user) => {
-        const stats = await getStudentQuizStats(user._id);
+    const recentUsersData =
+      await Promise.all(  recentUsers.map(async(user)=>{
+          const stats = await getStudentQuizStats(user._id);
 
-        return {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          joinedAt: user.createdAt,
-          quizzesTaken: stats.totalQuizzes,
-          avgScore: Math.round(stats.avgScore),
-        };
-      })
-    );
+          return {
+            id:user._id,
+            username:user.username,
+            email:user.email,
+            joinedAt:user.createdAt,
+            quizzesTaken:
+              stats.totalQuizzes || 0,
+            avgScore:
+              Math.round(stats.avgScore || 0)
 
-    /* ===========================
-       RESPONSE
-    =========================== */
+          };
+        })
+      );
 
     return res.status(200).json({
-      success: true,
-      message: "Admin dashboard loaded successfully",
-      data: {
-        stats: {
+      success:true,
+      data:{
+        stats:{
           totalUsers,
           activeToday,
           activeTodayPercentage:
-            totalUsers > 0
-              ? Math.round((activeToday / totalUsers) * 100)
-              : 0,
-
+            totalUsers
+            ?
+            Math.round(
+              activeToday / totalUsers * 100
+            )
+            :
+            0,
           totalCourses,
           publishedCourses,
           totalLessons,
           totalQuizzes,
           totalQuestions,
-
           totalAttempts,
           weeklyAttempts,
-
-          avgScore: platformAvgScore,
-
-          aiTutorSessions: 0, // future feature placeholder
+          avgScore:
+            Math.round(platformAvgScoreAgg || 0),
+          aiTutorSessions:0
         },
-
         topPerformingTopics,
-
-        recentUsers: enrichedUsers,
-      },
+        recentUsers:
+          recentUsersData,
+        trend:[]
+      }
     });
-  } catch (error) {
-    console.error("Admin Dashboard Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to load admin dashboard",
-      error: error.message,
+  }catch(error){
+    console.error(error);
+    res.status(500).json({
+      success:false,
+      message:error.message
     });
   }
-};
+}
