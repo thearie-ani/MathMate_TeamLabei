@@ -331,7 +331,7 @@ export const submitQuiz = async (req, res) => {
     const submission = await submissionRepo.create({
       quiz: quiz._id,
       course: quiz.courseId,
-      chapter,
+      chapter: quiz.chapter,
       student: req.user._id,
       answers: gradedAnswers,
       score: percentage,

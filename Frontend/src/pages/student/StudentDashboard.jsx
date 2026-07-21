@@ -83,7 +83,12 @@ function RecentActivityRow({ item }) {
 }
 
 export default function StudentDashboard() {
-  const { data, isLoading, isError, error } = useStudentDashboard();
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useStudentDashboard();
 
   if (isLoading) {
     return (

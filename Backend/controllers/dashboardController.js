@@ -5,6 +5,7 @@ import * as courseRepo from "../repository/courseRepositoty.js";
 import * as lessonRepo from "../repository/lessonRepository.js";
 import * as submissionRepo from "../repository/submissionRepository.js";
 import Quiz from "../models/Quiz.js";
+import Lesson from "../models/Lesson.js"; 
 import QuizSubmission from "../models/Submission.js";
 
 // ─── Helpers ────────────────────────────────────────────────

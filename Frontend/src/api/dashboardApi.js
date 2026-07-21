@@ -1,8 +1,8 @@
-import api from "./axios.js";
+import api from "./axios";
 
 export const getStudentDashboard = async () => {
-  const { data } = await api.get("/dashboard/student");
-  return data.data;
+  const res = await api.get("/dashboard/student");
+  return res.data.data;
 };
 
 export const getAdminDashboard = async () => {
