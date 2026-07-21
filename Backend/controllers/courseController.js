@@ -278,6 +278,7 @@ export const getLessonsByCourse = async (req, res) => {
     });
   }
 };
+
 export const getLessonById = async (req, res) => {
   try {
     const lesson = await lessonRepo.findById(req.params.lessonId);
@@ -298,21 +299,6 @@ export const getLessonById = async (req, res) => {
     }
 
     const content = lesson.content || "";
-
-    const mathIndex =
-      content.indexOf("<math") !== -1
-        ? content.indexOf("<math")
-        : content.search(/\$|\\\(|\\\[/);
-
-    console.log(
-      `MATH SNIPPET [${lesson.slug}]:`,
-      JSON.stringify(
-        content.slice(
-          Math.max(mathIndex - 50, 0),
-          mathIndex + 500
-        )
-      )
-    );
 
     return res.status(200).json({
       success: true,
@@ -370,7 +356,7 @@ export const createLesson = async (req, res) => {
 
     // keep course topicCount in sync
     await courseRepo.updateById(req.params.courseId, {
-      $inc: { topicCount: 1 },
+      $inc: { lessonCount: 1 },
     });
 
     return res.status(201).json({
@@ -455,7 +441,7 @@ export const deleteLesson = async (req, res) => {
 
     // keep course topicCount in sync
     await courseRepo.updateById(lesson.courseId.toString(), {
-      $inc: { topicCount: -1 },
+      $inc: { lessonCount: -1 },
     });
 
     return res.status(200).json({

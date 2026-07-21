@@ -26,15 +26,15 @@ function StatCard({ icon: Icon, label, value, sub, subColor }) {
 
 function CourseProgressCard({ course }) {
   const continueHref = course.lastAccessedLesson
-    ? `/courses/${course.courseId}/lessons/${course.lastAccessedLesson}`
-    : `/courses/${course.courseId}`;
+    ? `/courses/${course.slug}/lessons/${course.lastAccessedLesson.slug}`
+    : `/courses/${course.slug}`;
 
   return (
     <div className="rounded-2xl bg-white/70 border border-pink-100 shadow-sm p-4 flex flex-col gap-3">
       <div>
         <p className="font-medium text-gray-800 truncate">{course.title}</p>
         <p className="text-xs text-gray-500">
-          {course.completedCount}/{course.totalLessons} lessons
+          {course.completedCount}/{course.lessonCount} lessons
         </p>
       </div>
 

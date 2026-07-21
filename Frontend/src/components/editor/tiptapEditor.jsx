@@ -4,7 +4,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect } from 'react';
-import * as courseApi from '../../api/courseApi';
+import {courseApi} from '../../api/courseApi.js';
 
 function ToolbarButton({ onClick, active, children, title }) {
   return (

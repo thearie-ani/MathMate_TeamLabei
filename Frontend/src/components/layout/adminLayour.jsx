@@ -1,6 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './sidebar';
-import Navbar from './navbar';
 
 /**
  * Every /admin/* route renders inside this shell. Course/Topic/Quiz/User
@@ -17,14 +16,11 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8f7ff]">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar onLogout={handleLogout} />
-      <div className="flex-1 min-w-0">
-        <Navbar />
-        <main className="min-h-[calc(100vh-64px)]">
-          <Outlet />
-        </main>
-      </div>
+      <main className="flex-1 overflow-y-auto bg-[#faf9ff]">
+        <Outlet />
+      </main>
     </div>
   );
 }

@@ -22,6 +22,7 @@ import importRoutes from "./routes/importRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import logMiddleware from "./middleware/logMiddleware.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
+import { authenticate } from "./middleware/authMiddleware.js";
 
 const server = express();
 
@@ -36,24 +37,33 @@ server.use(
 );
 
 
-server.use(express.json());
+server.use(express.json({ limit: "10mb" }));
+server.use(express.urlencoded({
+  extended: true,
+  limit: "10mb",
+}));
+
 server.use(cookieParser());
-
-
-server.use(logMiddleware);
-server.use(errorMiddleware);
 
 server.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 server.use("/api/auth", authRoutes);
+
+server.use(logMiddleware);
+
+
 server.use("/api/quizzes", quizRoutes);
 server.use("/api/courses", courseRoutes);
 server.use("/api/users", userRoutes);
 server.use("/api/dashboard", dashboardRoutes);
 server.use("/api/chat", chatborRoutes);
 server.use("/api/import", importRoutes);
+
 server.use("/api/uploads", uploadRoutes);
 server.use("/api/chat", chatborRoutes);
+
+
+server.use(errorMiddleware);
 
 await connectDB();
 // await seedDefaultUsers();

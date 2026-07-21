@@ -7,8 +7,8 @@ export const create = async (submissionData) => {
 
 export const findById = async (id) => {
   return Submission.findById(id)
-    .populate("quiz", "title course topic")
-    .populate("student", "name email")
+    .populate("quiz", "title course chapter")
+    .populate("student", "username email")
     .lean();
 };
 
@@ -26,7 +26,7 @@ export const findByStudentId = async (
   return Submission.find({
     student: studentId,
   })
-    .populate("quiz", "title course topic")
+    .populate("quiz", "title course chapter")
     .sort({ updatedAt: -1 })
     .skip(skip)
     .limit(limit)
@@ -94,8 +94,8 @@ export const deleteById = async (id) => {
 
 export const findAll = async () => {
   return Submission.find()
-    .populate("quiz", "title course topic")
-    .populate("student", "name email")
+    .populate("quiz", "title course chapter")
+    .populate("student", "username email")
     .sort({ createdAt: -1 })
     .lean();
 };
@@ -206,7 +206,7 @@ export const getPlatformAverageScore = async () => {
 
 export const getLeaderboard = async (limit = 10) => {
   return Submission.find()
-    .populate("student", "name email")
+    .populate("student", "username email")
     .populate("quiz", "title")
     .sort({ score: -1 })
     .limit(limit)
@@ -218,7 +218,7 @@ export const getTopQuizzes = async (limit = 5) => {
     {
       $group: {
         _id: "$quiz",
-        averageScore: {
+        avgScore: {
           $avg: "$score",
         },
         attempts: {
@@ -228,7 +228,7 @@ export const getTopQuizzes = async (limit = 5) => {
     },
     {
       $sort: {
-        averageScore: -1,
+        avgScore: -1,
       },
     },
     {
@@ -248,126 +248,12 @@ export const getTopQuizzes = async (limit = 5) => {
     {
       $project: {
         _id: 1,
-        quizTitle: "$quiz.title",
-        averageScore: {
-          $round: ["$averageScore", 1],
+        topicTitle: "$quiz.title",
+        avgScore: {
+          $round: ["$avgScore", 1],
         },
         attempts: 1,
       },
     },
   ]);
 };
-
-
-// // mock data
-// import { Submission } from "../data/submission.js";
-
-// let submissions = [...Submission];
-// let idCounter = submissions.length + 1;
-
-// /**
-//  * Create submission
-//  */
-// export const create = async (submissionData) => {
-//   const now = new Date();
-
-//   const newSubmission = {
-//     _id: `sub${idCounter++}`,
-//     attempts: 1,
-//     firstSubmittedAt: now,
-//     lastSubmittedAt: now,
-//     createdAt: now,
-//     ...submissionData
-//   };
-
-//   submissions.push(newSubmission);
-
-//   return newSubmission;
-// };
-
-// /**
-//  * Update submission
-//  */
-// export const updateById = async ( id, updateData ) => {
-//   const index = submissions.findIndex(
-//     (submission) => submission._id === id
-//   );
-
-//   if (index === -1) {
-//     return null;
-//   }
-
-//   submissions[index] = {
-//     ...submissions[index],
-//     ...updateData,
-//     updatedAt: new Date()
-//   };
-
-//   return submissions[index];
-// };
-
-// /**
-//  * Find by id
-//  */
-// export const findById = async (id) => {
-//   return (
-//     submissions.find(
-//       (submission) => submission._id === id
-//     ) || null
-//   );
-// };
-
-// /**
-//  * Find by student
-//  */
-// export const findByStudentId = async (
-//   studentId
-// ) => {
-//   return submissions.filter(
-//     (submission) =>
-//       submission.student === studentId
-//   );
-// };
-
-// /**
-//  * Find by quiz
-//  */
-// export const findByQuizId = async (quizId) => {
-//   return submissions.filter(
-//     (submission) =>
-//       submission.quiz === quizId
-//   );
-// };
-
-// /**
-//  * Find student's submission for quiz
-//  */
-// export const findByQuizAndStudent = async (quizId, studentId) => {
-//     return (
-//       submissions.find(
-//         (submission) =>
-//           submission.quiz === quizId &&
-//           submission.student === studentId
-//       ) || null
-//     );
-//   };
-
-// /**
-//  * Delete
-//  */
-// export const deleteById = async (id) => {
-//   const index = submissions.findIndex(
-//     (submission) => submission._id === id
-//   );
-
-//   if (index === -1) {
-//     return null;
-//   }
-
-//   const [deleted] = submissions.splice(
-//     index,
-//     1
-//   );
-
-//   return deleted;
-// };

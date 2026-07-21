@@ -7,20 +7,18 @@ const findAll = async (filter = {}) => {
     query.courseId = filter.courseId;
   }
 
-  if (filter.lessonId) {
-    query.lessonId = filter.lessonId;
+  if (filter.chapter !== undefined) {
+    query.chapter = filter.chapter;
   }
 
   return Quiz.find(query)
     .populate("courseId", "title")
-    .populate("lessonId", "title")
-    .populate("createdBy", "name");
+    .populate("createdBy", "username");
 };
 
 const findById = async (id) => {
   return Quiz.findById(id)
     .populate("courseId", "title")
-    .populate("lessonId", "title")
     .populate("createdBy", "name");
 };
 

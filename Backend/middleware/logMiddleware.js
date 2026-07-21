@@ -2,7 +2,7 @@ const log = (req, res, next) => {
   console.log({
     Method: req.method,
     URL: req.originalUrl,
-    UserId: req.user?._id || "Guest",
+    Username: req.user?.username || "Guest",
   });
 
   next();

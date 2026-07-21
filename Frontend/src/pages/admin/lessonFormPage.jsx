@@ -61,7 +61,7 @@ export default function LessonFormPage() {
       courseApi.updateLesson(id, payload),
 
     mapRecordToForm: (lesson) => ({
-      courseId: lesson.courseId?._id || lesson.course || "",
+      course: lesson.course?._id || lesson.course || "",   // ✅ matches register("course")
       title: lesson.title || "",
       slug: lesson.slug || "",
       content: lesson.content || "",

@@ -27,7 +27,7 @@ export default function QuizFormPage() {
       title: "",
       description: "",
       course: "",
-      topic: "",
+      chapter: "",
       passingScore: 60,
       isPublished: false,
       questions: [emptyQuestion()],
@@ -46,7 +46,7 @@ export default function QuizFormPage() {
       title: quiz.title || "",
       description: quiz.description || "",
       course: quiz.course?._id || quiz.course || "",
-      topic: quiz.topic?._id || quiz.topic || "",
+      chapter: quiz.chapter ?? "",
       passingScore: quiz.passingScore ?? 60,
       isPublished: quiz.isPublished ?? false,
       questions: quiz.questions?.length
@@ -62,6 +62,8 @@ export default function QuizFormPage() {
 
     transformSubmit: (data) => ({
       ...data,
+      courseId:data.course,
+      chapter:Number(data.chapter),
       questions: data.questions.map((q) => ({
         ...q,
         options: q.options.filter((o) => o.trim() !== ""),
@@ -93,11 +95,18 @@ export default function QuizFormPage() {
 
   const selectedCourse = watch("course");
 
-  const { data: topics } = useQuery({
-    queryKey: ["topics", selectedCourse],
-    queryFn: async () =>
-      (await courseApi.getTopicsByCourse(selectedCourse)).data.data.topics,
+  const { data: chapters = [] } = useQuery({
+    queryKey: ["chapters", selectedCourse],
     enabled: !!selectedCourse,
+    queryFn: async () => {
+      const res = await courseApi.getLessonsByCourse(selectedCourse);
+
+      const lessons = res.data.data.lessons;
+      console.log("lesson", lessons);
+      return [...new Set(lessons.map((lesson) => lesson.chapter))].sort(
+        (a, b) => a - b
+      );
+    },
   });
 
   if (isLoadingEntity) {
@@ -165,16 +174,16 @@ export default function QuizFormPage() {
                 </select>
               </Field>
 
-              <Field label="Topic">
+              <Field label="Chapter">
                 <select
-                  {...register("topic")}
+                  {...register("chapter")}
                   className={selectCls}
                   disabled={!selectedCourse}
                 >
-                  <option value="">No topic</option>
-                  {topics?.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.title}
+                  <option value="">No Chapter</option>
+                  {chapters?.map((chapter) => (
+                    <option key={chapter} value={chapter}>
+                      Ch.{chapter}
                     </option>
                   ))}
                 </select>

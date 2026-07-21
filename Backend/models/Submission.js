@@ -42,14 +42,14 @@ const quizSubmissionSchema = new mongoose.Schema(
       ref: 'Course',
       required: true,
     },
-    lesson: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Lesson',
-      default: null,
+    chapter: {
+      type: Number,
+      required: true,
+      default: 0,
     },
     answers: [answerSchema],
     score: {
-      type: Number, // percentage 0-100
+      type: Number, 
       required: true,
     },
     pointsEarned: {

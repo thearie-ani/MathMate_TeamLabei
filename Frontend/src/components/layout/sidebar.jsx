@@ -1,67 +1,109 @@
-import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, FileText, ClipboardList, Users, LogOut, SaveIcon } from 'lucide-react';
+import { NavLink, Link } from "react-router-dom";
+import {
+  LayoutDashboard,
+  BookOpen,
+  ClipboardList,
+  Users,
+  LogOut,
+  SaveIcon
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/admin/courses', label: 'Courses', icon: BookOpen },
-  { to: '/admin/quizzes', label: 'Quizzes', icon: ClipboardList },
-  { to: '/admin/users', label: 'Users', icon: Users },
+  {
+    to: "/admin",
+    label: "Overview",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    to: "/admin/courses",
+    label: "Courses",
+    icon: BookOpen,
+  },
+  {
+    to: "/admin/quizzes",
+    label: "Quizzes",
+    icon: ClipboardList,
+  },
+  {
+    to: "/admin/users",
+    label: "Users",
+    icon: Users,
+  },
   { to: '/admin/import', label: 'Import', icon: SaveIcon },
 
 ];
 
 export default function Sidebar({ onLogout }) {
   return (
-    <aside className="w-64 flex-shrink-0 bg-white border-r border-[#e8e4f8] flex flex-col h-screen sticky top-0">
+    <aside className="w-64 shrink-0 h-screen sticky top-0 bg-white border-r border-[#eee8ff] flex flex-col">
+
       {/* Brand */}
-      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-[#1a1535]">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-violet-600 text-white text-sm font-bold">
+      <div className="px-5 py-4 border-b border-[#eee8ff]">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-lg font-bold text-[#1a1535]"
+        >
+          <span className="h-8 w-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-violet-600 text-white text-sm">
             ∑
           </span>
           MathMate
         </Link>
+      </div>
 
-      {/* Admin identity */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e8e4f8]">
-        <div className="w-9 h-9 rounded-full bg-[#8b5cf6] flex items-center justify-center text-white">
+
+      {/* Admin Profile */}
+      <div className="px-5 py-4 flex items-center gap-3">
+        <div className="h-9 w-9 rounded-full bg-violet-500 flex items-center justify-center text-white">
           <Users size={16} />
         </div>
+
         <div>
-          <p className="text-sm font-semibold text-[#1a1535] leading-tight">Admin</p>
-          <p className="text-xs text-gray-400 leading-tight">Administrator</p>
+          <p className="text-sm font-semibold text-[#1a1535]">
+            Admin
+          </p>
+          <p className="text-xs text-gray-400">
+            Administrator
+          </p>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1" aria-label="Admin navigation">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+      {/* Navigation */}
+      <nav className="flex-1 px-3 space-y-1">
+
+        {NAV_ITEMS.map(
+          ({ to, label, icon: Icon, end }) => (
+
           <NavLink
             key={to}
             to={to}
             end={end}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              `
+              flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition
+              ${
                 isActive
-                  ? 'bg-[#f3effe] text-[#8b5cf6]'
-                  : 'text-gray-500 hover:bg-[#f8f7ff] hover:text-[#1a1535]'
-              }`
+                  ? "bg-[#f3edff] text-[#8b5cf6]"
+                  : "text-gray-500 hover:bg-[#faf8ff] hover:text-[#1a1535]"
+              }
+              `
             }
           >
             <Icon size={17} />
             {label}
           </NavLink>
-        ))}
-      </nav>
 
+        ))}
+
+      </nav>
       {/* Logout */}
-      <div className="p-3 border-t border-[#e8e4f8]">
+      <div className="p-3 border-t border-[#eee8ff]">
+
         <button
           onClick={onLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm
-          font-medium text-[#8b5cf6] border border-[#e8e4f8] hover:bg-[#f8f7ff] transition-colors"
-        >
-          <LogOut size={15} />
-          Log out
+          className=" w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-500 hover:bg-red-50 transition " >
+          <LogOut size={17} />
+          Logout
         </button>
       </div>
     </aside>

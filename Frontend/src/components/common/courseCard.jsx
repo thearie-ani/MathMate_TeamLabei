@@ -24,11 +24,6 @@ export default function CourseCard({ course, progress, isEnrolling, onEnroll }) 
         </div>
         <div className="min-w-0">
           <h3 className="font-bold text-[#1a1535] leading-tight truncate">{course.title}</h3>
-          {(course.grade || course.difficulty) && (
-            <p className="text-xs text-gray-400 mt-0.5">
-              {[course.grade, course.difficulty].filter(Boolean).join(" · ")}
-            </p>
-          )}
         </div>
       </div>
 
@@ -59,7 +54,7 @@ export default function CourseCard({ course, progress, isEnrolling, onEnroll }) 
               Completed
             </div>
             <Link
-              to={`/student/courses/${course.slug}`}
+              to={`/courses/${course.slug}`}
               className="w-full flex items-center justify-center gap-2 border border-emerald-200 bg-emerald-50
               text-emerald-700 font-semibold text-sm py-2.5 rounded-xl hover:bg-emerald-100 transition"
             >

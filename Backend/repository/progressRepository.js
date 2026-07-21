@@ -94,17 +94,16 @@ export const findProgress = async ( studentId, courseId ) => {
     student: studentId,
     course: courseId,
   })
-    .populate("completedLessons", "title")
-    .populate("lastAccessedLesson", "title");
+
 };
 
 export const findAllProgressByStudent = async ( studentId) => {
   return CourseProgress.find({
     student: studentId,
   })
-    .populate("course", "title icon")
-    .populate("completedLessons", "title")
-    .populate("lastAccessedLesson", "title")
+    .populate("course", "title slug thumbnail")
+    .populate("completedLessons", "title slug")
+    .populate("lastAccessedLesson", "title slug")
     .lean();
 };
 
